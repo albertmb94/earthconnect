@@ -1,10 +1,17 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/Navbar';
 import { CookieBanner } from './components/CookieBanner';
 import { Landing } from './routes/Landing';
 import { ServicePage } from './routes/ServicePage';
 import { MarketingPage } from './routes/MarketingPage';
+import { Login } from './routes/Login';
+import { AdminDashboard } from './routes/AdminDashboard';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuth = localStorage.getItem('ec_admin_auth') === 'true';
+  return isAuth ? <>{children}</> : <Navigate to="/login" replace />;
+};
 
 export default function App() {
   return (
@@ -20,6 +27,12 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/en" element={<Landing />} />
               <Route path="/es" element={<Landing />} />
+              
+              {/* Auth & Admin */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/:lang/login" element={<Login />} />
+              <Route path="/:lang/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+
               <Route path="/:lang/:section/:slug" element={<MarketingPage />} />
               
               {/* Programmatic SEO Dynamic Routes */}
@@ -29,6 +42,20 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
+
+          {/* Footer with Discreet Admin Link */}
+          <footer className="py-12 px-6 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-zinc-500 text-xs font-medium">
+                © {new Date().getFullYear()} EarthConnect. All rights reserved.
+              </div>
+              <div className="flex gap-6">
+                <Link to="/en/login" className="text-zinc-300 dark:text-zinc-800 text-[10px] uppercase tracking-widest hover:text-zinc-500 transition-colors">
+                  Partner Portal
+                </Link>
+              </div>
+            </div>
+          </footer>
 
           {/* Compliance RGPD Banner */}
           <CookieBanner />
