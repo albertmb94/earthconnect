@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 
 type NavItem = {
@@ -170,21 +170,30 @@ const navGroups: NavGroup[] = [
 export const Navbar: React.FC = () => {
   const { lang, setLanguage } = useI18n();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const prefix = lang === 'es' ? '/es' : '/en';
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-5">
-        <Link to={lang === 'es' ? '/es' : '/en'} className="flex items-center gap-2 group shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 font-bold text-lg group-hover:scale-105 transition-transform border border-zinc-700/50">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+        <Link to={lang === 'es' ? '/es' : '/en'} className="flex items-center gap-2 shrink-0">
+          <div className="w-7 h-7 rounded bg-zinc-900 dark:bg-white flex items-center justify-center text-white dark:text-zinc-900 font-semibold text-sm">
             E
           </div>
-          <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight group-hover:opacity-80 transition-opacity">
-            Earth<span className="font-normal text-zinc-500">Connect</span>
+          <span className="font-semibold text-base text-zinc-900 dark:text-zinc-100">
+            EarthConnect
           </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+        <button
+          className="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        </button>
+
+        <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
           {navGroups.map((group) => (
             <div
               key={group.label}
@@ -192,24 +201,24 @@ export const Navbar: React.FC = () => {
               onMouseEnter={() => setOpenGroup(group.label)}
               onMouseLeave={() => setOpenGroup(null)}
             >
-              <button className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer">
+              <button className="inline-flex items-center gap-0.5 px-2.5 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer">
                 {group.label}
                 <ChevronDown className="w-3 h-3" />
               </button>
               {openGroup === group.label && (
-                <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 ${group.items.length > 6 ? 'w-[44rem]' : 'w-[24rem]'}`}>
-                  <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-2xl shadow-zinc-950/10 p-2">
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 ${group.items.length > 6 ? 'w-[40rem]' : 'w-[22rem]'}`}>
+                  <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-lg p-1.5">
                     <div className={group.items.length > 6 ? 'grid grid-cols-2 gap-0.5' : ''}>
                       {group.items.map((item) => (
                         <Link
                           key={item.href}
                           to={`${prefix}/${item.href}`}
-                          className="block px-3 py-3 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                          className="block px-2.5 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                         >
-                          <div className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                          <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                             {item.label}
                           </div>
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                          <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                             {item.hint}
                           </div>
                         </Link>
@@ -222,27 +231,27 @@ export const Navbar: React.FC = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <Link to={`${prefix}/company/contact-us`} className="hidden md:inline-flex text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors">
+        <div className="flex items-center gap-2 shrink-0">
+          <Link to={`${prefix}/company/contact-us`} className="hidden md:inline-flex text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             Contact
           </Link>
-          <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-0.5">
+          <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-md p-0.5">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              className={`px-2 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
                 lang === 'en'
                   ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
               }`}
             >
               EN
             </button>
             <button
               onClick={() => setLanguage('es')}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+              className={`px-2 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
                 lang === 'es'
                   ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                  : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
               }`}
             >
               ES
@@ -250,6 +259,39 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 max-h-[80vh] overflow-y-auto">
+          <div className="px-4 py-3 space-y-3">
+            {navGroups.map((group) => (
+              <div key={group.label}>
+                <button
+                  onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
+                  className="flex items-center justify-between w-full py-2 text-left font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  {group.label}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${openGroup === group.label ? 'rotate-180' : ''}`} />
+                </button>
+                {openGroup === group.label && (
+                  <div className="mt-2 pl-3 space-y-2 border-l border-zinc-200 dark:border-zinc-800">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={`${prefix}/${item.href}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
