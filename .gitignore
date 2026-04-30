@@ -43,3 +43,6 @@ coverage/
 
 # Local development
 *.local
+
+# Claude Code worktrees
+.claude/worktrees/

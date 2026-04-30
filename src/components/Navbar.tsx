@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, LogIn } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 
 type NavItem = {
@@ -171,7 +171,19 @@ export const Navbar: React.FC = () => {
   const { lang, setLanguage } = useI18n();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const loginRef = useRef<HTMLDivElement>(null);
   const prefix = lang === 'es' ? '/es' : '/en';
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (loginRef.current && !loginRef.current.contains(e.target as Node)) {
+        setLoginOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
@@ -235,6 +247,40 @@ export const Navbar: React.FC = () => {
           <Link to={`${prefix}/company/contact-us`} className="hidden md:inline-flex text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
             Contact
           </Link>
+
+          {/* Login dropdown */}
+          <div className="relative" ref={loginRef}>
+            <button
+              onClick={() => setLoginOpen(!loginOpen)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              Login
+            </button>
+            {loginOpen && (
+              <div className="absolute top-full right-0 pt-2 w-52">
+                <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-lg p-1.5">
+                  <Link
+                    to={`${prefix}/buyer-login`}
+                    onClick={() => setLoginOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  >
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Customer Portal</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Access your quotes & orders</div>
+                  </Link>
+                  <Link
+                    to={`${prefix}/carrier-login`}
+                    onClick={() => setLoginOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  >
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Carrier Portal</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage opportunities & quotes</div>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-md p-0.5">
             <button
               onClick={() => setLanguage('en')}
@@ -289,6 +335,22 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             ))}
+            <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 space-y-1">
+              <Link
+                to={`${prefix}/buyer-login`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Customer Portal
+              </Link>
+              <Link
+                to={`${prefix}/carrier-login`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Carrier Portal
+              </Link>
+            </div>
           </div>
         </div>
       )}
