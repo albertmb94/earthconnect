@@ -65,30 +65,67 @@ export const Landing: React.FC = () => {
         </motion.div>
 
         {/* Hero Title */}
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 max-w-3xl leading-none md:leading-tight mb-4 bg-clip-text"
+          className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 max-w-3xl leading-none md:leading-tight mb-4"
         >
           {t.title}
         </motion.h1>
 
         {/* Hero Subtitle */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed mb-12"
+          className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed mb-8"
         >
           {t.subtitle}
         </motion.p>
 
-        {/* Search Box with Framer Motion */}
-        <motion.div 
+        {/* Dual CTAs */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="flex flex-col sm:flex-row gap-4 mb-8"
+        >
+          <a
+            href="#request-quote"
+            className="px-8 py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl text-sm shadow-lg hover:opacity-90 transition-all"
+          >
+            {t.heroCtaPrimary}
+          </a>
+          <a
+            href="#join-vendor"
+            className="px-8 py-3.5 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold rounded-xl text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all"
+          >
+            {t.heroCtaSecondary}
+          </a>
+        </motion.div>
+
+        {/* Trust Signals Bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.35 }}
+          className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-xs font-semibold text-zinc-400 dark:text-zinc-600 mb-12"
+        >
+          <span className="flex items-center gap-1.5">
+            <Shield className="w-4 h-4 text-emerald-500" />
+            {t.trustGdpr}
+          </span>
+          <span>{t.trustRegions}</span>
+          <span>{t.trustCarriers}</span>
+          <span>{t.trustIntegrations}</span>
+        </motion.div>
+
+        {/* Search Box with Framer Motion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           className="w-full relative"
           layoutId="search-box-container"
         >

@@ -28,7 +28,9 @@ interface Translations {
   lastName: string;
   corpEmail: string;
   corpPhone: string;
+  corpPhoneOptional?: string;
   role: string;
+  roleOptional?: string;
   rolePlaceholder: string;
   privacyCheck: string;
   submitForm: string;
@@ -55,14 +57,26 @@ interface Translations {
   requestInfo: string;
   requestInfoFor: string;
   closeModal: string;
+  heroCtaPrimary: string;
+  heroCtaSecondary: string;
+  trustGdpr: string;
+  trustRegions: string;
+  trustCarriers: string;
+  trustIntegrations: string;
 }
 
 const translations: Record<Language, Translations> = {
   en: {
-    title: "Enter an address to check global connectivity",
-    subtitle: "Enterprise-grade B2B platform to analyze physical nodes, LEO/MEO satellite footprints, and dark fiber availability in real-time.",
-    placeholder: "e.g., 111 8th Ave, New York or Paseo de la Castellana, Madrid",
+    title: "Global Connectivity Sourcing Made Simple",
+    subtitle: "Source, compare, and procure enterprise connectivity in minutes. Stop RFPs. Stop endless email chains. Get transparent B2B pricing from certified carriers worldwide.",
+    placeholder: "Search city, region, or address...",
     checkBtn: "Check Connectivity",
+    heroCtaPrimary: "Request Quote",
+    heroCtaSecondary: "Join as Vendor",
+    trustGdpr: "GDPR Compliant",
+    trustRegions: "190+ Regions",
+    trustCarriers: "850+ Carriers",
+    trustIntegrations: "50+ Integrations",
     loadingTexts: [
       "Analyzing local physical nodes...",
       "Cross-referencing global transit rates...",
@@ -90,7 +104,9 @@ const translations: Record<Language, Translations> = {
     lastName: "Last Name",
     corpEmail: "Corporate Email",
     corpPhone: "Corporate Phone",
+    corpPhoneOptional: "Corporate Phone (optional)",
     role: "Job Title / Role",
+    roleOptional: "Job Title / Role (optional)",
     rolePlaceholder: "e.g., Network Engineer, CIO, Procurement",
     privacyCheck: "I accept the Privacy Policy for corporate data processing under GDPR/CCPA regulations.",
     submitForm: "Request Technical Call",
@@ -119,10 +135,16 @@ const translations: Record<Language, Translations> = {
     closeModal: "Close"
   },
   es: {
-    title: "Introduce una dirección para verificar la conectividad global",
-    subtitle: "Plataforma B2B para analizar nodos físicos, huella de satélites LEO/MEO y disponibilidad de fibra oscura en tiempo real.",
-    placeholder: "ej., Paseo de la Castellana 259, Madrid o 111 8th Ave, New York",
+    title: "Sourcing de Conectividad Global Simplificado",
+    subtitle: "Busca, compara y adquiere conectividad empresarial en minutos. Deja de hacer RFPs. Deja las cadenas de email. Obtén precios B2B transparentes de operadores certificados en todo el mundo.",
+    placeholder: "Buscar ciudad, región o dirección...",
     checkBtn: "Verificar Conectividad",
+    heroCtaPrimary: "Solicitar Cotización",
+    heroCtaSecondary: "Unirse como Proveedor",
+    trustGdpr: "Cumple RGPD",
+    trustRegions: "190+ Regiones",
+    trustCarriers: "850+ Operadores",
+    trustIntegrations: "50+ Integraciones",
     loadingTexts: [
       "Analizando nodos físicos locales...",
       "Cruzando tarifas de tránsito global...",
@@ -150,7 +172,9 @@ const translations: Record<Language, Translations> = {
     lastName: "Apellidos",
     corpEmail: "Correo Corporativo",
     corpPhone: "Teléfono Corporativo",
+    corpPhoneOptional: "Teléfono Corporativo (opcional)",
     role: "Puesto / Cargo",
+    roleOptional: "Puesto / Cargo (opcional)",
     rolePlaceholder: "ej., Ingeniero de Redes, CIO, Compras",
     privacyCheck: "Acepto la Política de Privacidad para el tratamiento de datos corporativos bajo la normativa RGPD/CCPA.",
     submitForm: "Solicitar Llamada Técnica",

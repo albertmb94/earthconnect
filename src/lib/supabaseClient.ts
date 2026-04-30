@@ -31,8 +31,8 @@ export async function insertLead(payload: {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  role: string;
+  phone?: string | null;
+  role?: string | null;
   privacyAccepted: boolean;
   context?: {
     service?: string;
@@ -50,8 +50,8 @@ export async function insertLead(payload: {
     first_name: payload.firstName,
     last_name: payload.lastName,
     corporate_email: payload.email,
-    phone: payload.phone,
-    role: payload.role,
+    phone: payload.phone || null,
+    role: payload.role || null,
     privacy_accepted: payload.privacyAccepted,
     requested_service: payload.context?.service,
     requested_city: payload.context?.city,

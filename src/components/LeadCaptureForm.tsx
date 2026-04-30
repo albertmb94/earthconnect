@@ -32,8 +32,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({ defaultEmail, 
       .refine(isCorporateEmail, {
         message: t.errorCorpEmail,
       }),
-    phone: z.string().min(6, t.errorRequired),
-    role: z.string().min(2, t.errorRequired),
+    phone: z.string().optional(),
+    role: z.string().optional(),
     privacyAccepted: z.boolean().refine((val) => val === true, {
       message: t.errorRequired,
     }),
@@ -156,7 +156,7 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({ defaultEmail, 
 
         <div>
           <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-            {t.corpPhone}
+            {t.corpPhoneOptional || t.corpPhone}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
@@ -169,14 +169,11 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({ defaultEmail, 
               className="block w-full pl-9 pr-3 py-2 bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 outline-none transition-all"
             />
           </div>
-          {errors.phone && (
-            <p className="mt-1 text-2xs text-red-500">{errors.phone.message}</p>
-          )}
         </div>
 
         <div>
           <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-            {t.role}
+            {t.roleOptional || t.role}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
@@ -190,9 +187,6 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({ defaultEmail, 
               className="block w-full pl-9 pr-3 py-2 bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 outline-none transition-all"
             />
           </div>
-          {errors.role && (
-            <p className="mt-1 text-2xs text-red-500">{errors.role.message}</p>
-          )}
         </div>
 
         <div className="pt-2">

@@ -7,10 +7,25 @@ import { ServicePage } from './routes/ServicePage';
 import { MarketingPage } from './routes/MarketingPage';
 import { Login } from './routes/Login';
 import { AdminDashboard } from './routes/AdminDashboard';
+import { BuyerLogin } from './routes/BuyerLogin';
+import { CarrierLogin } from './routes/CarrierLogin';
+import { BuyerDashboard } from './routes/BuyerDashboard';
+import { CarrierDashboard } from './routes/CarrierDashboard';
+import { getBuyerAuth, getCarrierAuth } from './lib/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = localStorage.getItem('ec_admin_auth') === 'true';
   return isAuth ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
+  const auth = getBuyerAuth();
+  return auth ? <>{children}</> : <Navigate to="/en/buyer-login" replace />;
+};
+
+const CarrierRoute = ({ children }: { children: React.ReactNode }) => {
+  const auth = getCarrierAuth();
+  return auth ? <>{children}</> : <Navigate to="/en/carrier-login" replace />;
 };
 
 export default function App() {
@@ -32,6 +47,14 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/:lang/login" element={<Login />} />
               <Route path="/:lang/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+
+              {/* Buyer Portal */}
+              <Route path="/:lang/buyer-login" element={<BuyerLogin />} />
+              <Route path="/:lang/buyer" element={<BuyerRoute><BuyerDashboard /></BuyerRoute>} />
+
+              {/* Carrier Portal */}
+              <Route path="/:lang/carrier-login" element={<CarrierLogin />} />
+              <Route path="/:lang/carrier" element={<CarrierRoute><CarrierDashboard /></CarrierRoute>} />
 
               <Route path="/:lang/:section/:slug" element={<MarketingPage />} />
               
