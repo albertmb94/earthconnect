@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Clock } from 'lucide-react';
 
 export interface QuoteData {
   id: string;

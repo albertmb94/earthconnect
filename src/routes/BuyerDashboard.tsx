@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Package, FileText, Truck, Calendar, ChevronRight, LogOut, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, FileText, Truck, Calendar, ChevronRight, LogOut, CheckCircle, Clock, AlertCircle, Loader2 } from 'lucide-react';
 import { getBuyerAuth, logout } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
+import { dataClient, BuyerRequest } from '../lib/dataClient';
+import { NewRequestModal } from '../components/NewRequestModal';
+import { BuyerRequestQuotes } from '../components/BuyerRequestQuotes';
 
-type RequestStatus = 'pending' | 'quote_received' | 'in_progress' | 'completed';
-
-interface Request {
-  id: string;
-  service: string;
-  city: string;
-  country: string;
-  status: RequestStatus;
-  quotes: number;
-  createdAt: string;
-  bandwidth?: string;
-}
+type RequestStatus = 'pending' | 'quoted' | 'in_progress' | 'completed';
 
 interface Renewal {
   contract: string;
@@ -25,13 +15,6 @@ interface Renewal {
   daysLeft: number;
   monthlyCost: string;
 }
-
-const mockRequests: Request[] = [
-  { id: 'REQ-2024-001', service: 'DIA', city: 'Madrid', country: 'Spain', status: 'quote_received', quotes: 3, createdAt: '2024-04-15', bandwidth: '500 Mbps' },
-  { id: 'REQ-2024-002', service: 'MPLS', city: 'Barcelona', country: 'Spain', status: 'pending', quotes: 1, createdAt: '2024-04-18', bandwidth: '1 Gbps' },
-  { id: 'REQ-2024-003', service: 'Dark Fiber', city: 'Sevilla', country: 'Spain', status: 'in_progress', quotes: 5, createdAt: '2024-03-20', bandwidth: '10 Gbps' },
-  { id: 'REQ-2024-004', service: 'Broadband FTTH', city: 'Valencia', country: 'Spain', status: 'completed', quotes: 2, createdAt: '2024-02-10', bandwidth: '300 Mbps' },
-];
 
 const mockRenewals: Renewal[] = [
   { contract: 'Zayo - DIA 500Mbps', provider: 'Zayo', expires: '2024-06-15', daysLeft: 45, monthlyCost: '$2,400' },
@@ -42,14 +25,14 @@ const mockRenewals: Renewal[] = [
 const StatusBadge: React.FC<{ status: RequestStatus }> = ({ status }) => {
   const config = {
     pending: { icon: Clock, cls: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
-    quote_received: { icon: FileText, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
+    quoted: { icon: FileText, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
     in_progress: { icon: Truck, cls: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20' },
     completed: { icon: CheckCircle, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
   };
   const { icon: Icon, cls } = config[status];
   const labels = {
     pending: 'Pending',
-    quote_received: 'Quotes Received',
+    quoted: 'Quotes Received',
     in_progress: 'In Progress',
     completed: 'Completed'
   };
@@ -77,8 +60,24 @@ const StatCard: React.FC<{ label: string; value: string | number; icon: React.El
 );
 
 export const BuyerDashboard: React.FC = () => {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
   const [auth] = useState(getBuyerAuth());
+  const [requests, setRequests] = useState<BuyerRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNewRequest, setShowNewRequest] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<BuyerRequest | null>(null);
+
+  const fetchRequests = async () => {
+    if (!auth?.email) return;
+    setLoading(true);
+    const data = await dataClient.getBuyerRequests(auth.email);
+    setRequests(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRequests();
+  }, [auth?.email]);
 
   const handleLogout = () => {
     logout();
@@ -89,6 +88,10 @@ export const BuyerDashboard: React.FC = () => {
     window.location.href = `/${lang === 'es' ? 'es' : 'en'}/buyer-login`;
     return null;
   }
+
+  const activeRequests = requests.filter(r => r.status !== 'completed').length;
+  const totalQuotes = requests.reduce((sum, r) => sum + r.quotes_count, 0);
+  const inProgress = requests.filter(r => r.status === 'in_progress').length;
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pt-20 px-6 pb-24">
@@ -115,9 +118,9 @@ export const BuyerDashboard: React.FC = () => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard label="Active Requests" value="3" icon={Package} />
-          <StatCard label="Quotes Received" value="12" icon={FileText} />
-          <StatCard label="Orders in Progress" value="1" icon={Truck} />
+          <StatCard label="Active Requests" value={activeRequests} icon={Package} />
+          <StatCard label="Quotes Received" value={totalQuotes} icon={FileText} />
+          <StatCard label="Orders in Progress" value={inProgress} icon={Truck} />
           <StatCard label="Upcoming Renewals" value="3" icon={Calendar} />
         </div>
 
@@ -125,48 +128,73 @@ export const BuyerDashboard: React.FC = () => {
         <div className="mt-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Your Requests</h2>
-            <button className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-lg hover:opacity-90 transition-all cursor-pointer">
+            <button
+              onClick={() => setShowNewRequest(true)}
+              className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold rounded-lg hover:opacity-90 transition-all cursor-pointer"
+            >
               + New Request
             </button>
           </div>
 
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">ID</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Service</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Location</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Bandwidth</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Status</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Quotes</th>
-                  <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Created</th>
-                  <th className="py-4 px-6"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockRequests.map((req) => (
-                  <tr key={req.id} className="border-b border-zinc-100 dark:border-zinc-900 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                    <td className="py-4 px-6 font-mono text-xs text-zinc-500">{req.id}</td>
-                    <td className="py-4 px-6 font-medium">{req.service}</td>
-                    <td className="py-4 px-6 text-zinc-600 dark:text-zinc-400">{req.city}, {req.country}</td>
-                    <td className="py-4 px-6 text-zinc-600 dark:text-zinc-400">{req.bandwidth}</td>
-                    <td className="py-4 px-6"><StatusBadge status={req.status} /></td>
-                    <td className="py-4 px-6">
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs font-bold">
-                        {req.quotes}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-zinc-500 text-xs">{req.createdAt}</td>
-                    <td className="py-4 px-6">
-                      <button className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer">
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </td>
+            {loading ? (
+              <div className="p-8 flex items-center justify-center gap-3 text-sm text-zinc-500">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Loading your requests...
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">ID</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Service</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Location</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Bandwidth</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Status</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Quotes</th>
+                    <th className="text-left py-4 px-6 text-2xs font-bold tracking-widest text-zinc-400 uppercase">Created</th>
+                    <th className="py-4 px-6"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {requests.map((req) => (
+                    <tr
+                      key={req.id}
+                      onClick={() => {
+                        if (req.status === 'quoted' || req.status === 'in_progress') {
+                          setSelectedRequest(req);
+                        }
+                      }}
+                      className={`border-b border-zinc-100 dark:border-zinc-900 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors ${req.status === 'quoted' || req.status === 'in_progress' ? 'cursor-pointer' : ''}`}
+                    >
+                      <td className="py-4 px-6 font-mono text-xs text-zinc-500">{req.id}</td>
+                      <td className="py-4 px-6 font-medium">{req.service}</td>
+                      <td className="py-4 px-6 text-zinc-600 dark:text-zinc-400">{req.city}, {req.country}</td>
+                      <td className="py-4 px-6 text-zinc-600 dark:text-zinc-400">{req.bandwidth || '—'}</td>
+                      <td className="py-4 px-6"><StatusBadge status={req.status} /></td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs font-bold">
+                          {req.quotes_count}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-zinc-500 text-xs">{req.created_at?.split('T')[0]}</td>
+                      <td className="py-4 px-6">
+                        <button className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer">
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {requests.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-sm text-zinc-400">
+                        No requests found. Start by creating your first request.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
@@ -199,6 +227,23 @@ export const BuyerDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <NewRequestModal
+        isOpen={showNewRequest}
+        onClose={() => setShowNewRequest(false)}
+        buyerEmail={auth.email}
+        onCreated={fetchRequests}
+      />
+
+      <BuyerRequestQuotes
+        isOpen={!!selectedRequest}
+        onClose={() => setSelectedRequest(null)}
+        requestId={selectedRequest?.id || null}
+        requestService={selectedRequest?.service || ''}
+        requestLocation={selectedRequest ? `${selectedRequest.city}, ${selectedRequest.country}` : ''}
+        onAcceptQuote={fetchRequests}
+      />
     </div>
   );
 };

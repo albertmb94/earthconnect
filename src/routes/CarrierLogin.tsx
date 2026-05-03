@@ -6,7 +6,7 @@ import { setCarrierAuth } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
 
 export const CarrierLogin: React.FC = () => {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

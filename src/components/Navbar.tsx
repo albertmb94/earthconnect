@@ -44,34 +44,9 @@ const navGroups: NavGroup[] = [
     label: 'Solutions',
     items: [
       {
-        label: 'SASE & Cloud Security',
-        href: 'solutions/sase-security',
-        hint: 'Unified networking and security architecture for the modern edge'
-      },
-      {
-        label: 'Cybersecurity Services',
-        href: 'solutions/cybersecurity',
-        hint: 'Managed SOC, penetration testing, and vulnerability management'
-      },
-      {
-        label: 'Cloud & Migration',
-        href: 'solutions/cloud-migration',
-        hint: 'Public, private, and hybrid cloud sourcing and cost optimization'
-      },
-      {
-        label: 'Managed Mobility (MMS)',
-        href: 'solutions/managed-mobility',
-        hint: 'Centralized mobile logistics, device lifecycle, and cost control'
-      },
-      {
-        label: 'POTS Replacement',
-        href: 'solutions/pots-replacement',
-        hint: 'Modernize legacy analog lines with cost-effective digital alternatives'
-      },
-      {
-        label: 'Managed Services (MSP)',
-        href: 'solutions/managed-services',
-        hint: 'Ongoing support for global network operations and MACD requests'
+        label: 'Solutions Overview',
+        href: 'solutions',
+        hint: 'Explore all enterprise connectivity solutions in one place'
       },
       {
         label: 'Dedicated Internet (DIA)',
@@ -89,19 +64,29 @@ const navGroups: NavGroup[] = [
         hint: 'Private WAN, QoS, migration planning, and modern hybrid architecture'
       },
       {
-        label: 'Dark Fiber & EPL',
-        href: 'solutions/dark-fiber-epl',
-        hint: 'High-capacity interconnects, wavelength-ready routes, and private transport'
-      },
-      {
         label: 'Satellite Connectivity',
         href: 'solutions/satellite-connectivity',
         hint: 'LEO, MEO, and GEO coverage for remote and resilient enterprise access'
       },
       {
-        label: 'Voice & Collaboration',
-        href: 'solutions/voice-collaboration',
-        hint: 'UCaaS, CCaaS, SIP, VoIP, and modern collaboration tools'
+        label: 'Cloud & Migration',
+        href: 'solutions/cloud-migration',
+        hint: 'Public, private, and hybrid cloud sourcing and cost optimization'
+      },
+      {
+        label: 'Dark Fiber & EPL',
+        href: 'solutions/dark-fiber-epl',
+        hint: 'High-capacity interconnects, wavelength-ready routes, and private transport'
+      },
+      {
+        label: 'Managed Mobility (MMS)',
+        href: 'solutions/managed-mobility',
+        hint: 'Centralized mobile logistics, device lifecycle, and cost control'
+      },
+      {
+        label: 'Managed Services (MSP)',
+        href: 'solutions/managed-services',
+        hint: 'Ongoing support for global network operations and MACD requests'
       }
     ]
   },
@@ -220,7 +205,7 @@ export const Navbar: React.FC = () => {
               {openGroup === group.label && (
                 <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 ${group.items.length > 6 ? 'w-[40rem]' : 'w-[22rem]'}`}>
                   <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-lg p-1.5">
-                    <div className={group.items.length > 6 ? 'grid grid-cols-2 gap-0.5' : ''}>
+                    <div className={group.items.length > 6 ? 'grid grid-flow-col grid-rows-5 gap-0.5' : ''}>
                       {group.items.map((item) => (
                         <Link
                           key={item.href}

@@ -499,5 +499,12 @@ export const supabaseClientMock = {
       data: providers,
       error: null
     };
-  }
+  },
+
+  // ------------------------------------------------------------------
+  // NOTE: Portal mocks removed. All portal data now flows through
+  // real Supabase tables: carriers, buyer_requests, quotes, etc.
+  // Only public marketing mocks (get_service_insights, queryCoverage)
+  // remain for offline development.
+  // ------------------------------------------------------------------
 };

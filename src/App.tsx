@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useParams } from 'react-router-dom';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/Navbar';
 import { CookieBanner } from './components/CookieBanner';
@@ -7,14 +7,17 @@ import { ServicePage } from './routes/ServicePage';
 import { MarketingPage } from './routes/MarketingPage';
 import { Login } from './routes/Login';
 import { AdminDashboard } from './routes/AdminDashboard';
+import { AdminCarriersPage } from './routes/AdminCarriersPage';
+import { AdminRequestsPage } from './routes/AdminRequestsPage';
+import { AdminQuotesPage } from './routes/AdminQuotesPage';
 import { BuyerLogin } from './routes/BuyerLogin';
 import { CarrierLogin } from './routes/CarrierLogin';
 import { BuyerDashboard } from './routes/BuyerDashboard';
 import { CarrierDashboard } from './routes/CarrierDashboard';
-import { getBuyerAuth, getCarrierAuth } from './lib/auth';
+import { getBuyerAuth, getCarrierAuth, getAdminAuth } from './lib/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = localStorage.getItem('ec_admin_auth') === 'true';
+  const isAuth = !!getAdminAuth();
   return isAuth ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
@@ -26,6 +29,11 @@ const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
 const CarrierRoute = ({ children }: { children: React.ReactNode }) => {
   const auth = getCarrierAuth();
   return auth ? <>{children}</> : <Navigate to="/en/carrier-login" replace />;
+};
+
+const RemovedPageRedirect = () => {
+  const { lang } = useParams();
+  return <Navigate to={`/${lang || 'en'}/solutions`} replace />;
 };
 
 export default function App() {
@@ -47,6 +55,9 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/:lang/login" element={<Login />} />
               <Route path="/:lang/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/:lang/admin/carriers" element={<ProtectedRoute><AdminCarriersPage /></ProtectedRoute>} />
+              <Route path="/:lang/admin/requests" element={<ProtectedRoute><AdminRequestsPage /></ProtectedRoute>} />
+              <Route path="/:lang/admin/quotes" element={<ProtectedRoute><AdminQuotesPage /></ProtectedRoute>} />
 
               {/* Buyer Portal */}
               <Route path="/:lang/buyer-login" element={<BuyerLogin />} />
@@ -56,11 +67,20 @@ export default function App() {
               <Route path="/:lang/carrier-login" element={<CarrierLogin />} />
               <Route path="/:lang/carrier" element={<CarrierRoute><CarrierDashboard /></CarrierRoute>} />
 
+              {/* Solutions Overview (must be before generic /:section/:slug) */}
+              <Route path="/:lang/solutions" element={<MarketingPage />} />
+
+              {/* Redirects for removed pages (must be before generic /:section/:slug) */}
+              <Route path="/:lang/solutions/sase-security" element={<RemovedPageRedirect />} />
+              <Route path="/:lang/solutions/cybersecurity" element={<RemovedPageRedirect />} />
+              <Route path="/:lang/solutions/pots-replacement" element={<RemovedPageRedirect />} />
+              <Route path="/:lang/solutions/voice-collaboration" element={<RemovedPageRedirect />} />
+
               <Route path="/:lang/:section/:slug" element={<MarketingPage />} />
-              
+
               {/* Programmatic SEO Dynamic Routes */}
               <Route path="/:lang/:service/:country/:city" element={<ServicePage />} />
-              
+
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

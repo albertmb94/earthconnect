@@ -55,6 +55,21 @@ function getCurrencyForCountry(country: string): { code: string; symbol: string;
   return { code: 'USD', symbol: '$', rate: 1 };
 }
 
+const CURRENCY_OPTIONS = [
+  { code: 'AUTO', label: 'Auto-detect' },
+  { code: 'EUR', label: 'EUR (€)' },
+  { code: 'GBP', label: 'GBP (£)' },
+  { code: 'USD', label: 'USD ($)' },
+  { code: 'JPY', label: 'JPY (¥)' },
+];
+
+const CURRENCY_MAP: Record<string, { code: string; symbol: string; rate: number; noDecimals?: boolean }> = {
+  EUR: { code: 'EUR', symbol: '€', rate: 0.93 },
+  GBP: { code: 'GBP', symbol: '£', rate: 0.79 },
+  USD: { code: 'USD', symbol: '$', rate: 1 },
+  JPY: { code: 'JPY', symbol: '¥', rate: 152, noDecimals: true },
+};
+
 export const InsightsPanel: React.FC<InsightsPanelProps> = ({ lat, lng, country, city, onRequestInfo }) => {
   const { t, lang } = useI18n();
   const [loading, setLoading] = useState(true);
@@ -73,6 +88,11 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ lat, lng, country,
   );
   const [visibleServices, setVisibleServices] = useState<Set<string>>(new Set(allKeys));
 
+  // Currency selector state
+  const [currencyOverride, setCurrencyOverride] = useState<string>(() => {
+    return localStorage.getItem('ec_currency_preference') || 'AUTO';
+  });
+
   const filterItems: ServiceFilterItem[] = useMemo(() => [
     ...NODE_TECHS.map(tech => ({
       key: tech.key,
@@ -88,7 +108,8 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ lat, lng, country,
     }))
   ], [lang]);
 
-  const currency = getCurrencyForCountry(country);
+  const detectedCurrency = getCurrencyForCountry(country);
+  const currency = currencyOverride === 'AUTO' ? detectedCurrency : (CURRENCY_MAP[currencyOverride] || detectedCurrency);
 
   useEffect(() => {
     setLoading(true);
@@ -203,14 +224,36 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ lat, lng, country,
         </p>
       </motion.div>
 
-      {/* Controls: Bandwidth + Service Filter */}
+      {/* Controls: Bandwidth + Currency + Service Filter */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
         className="space-y-4"
       >
-        <BandwidthSelector value={bandwidth} onChange={setBandwidth} />
+        <div className="flex flex-col sm:flex-row gap-4 items-start">
+          <div className="flex-1 w-full">
+            <BandwidthSelector value={bandwidth} onChange={setBandwidth} />
+          </div>
+          <div className="sm:w-44 w-full">
+            <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+              {lang === 'es' ? 'Moneda' : 'Currency'}
+            </label>
+            <select
+              value={currencyOverride}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCurrencyOverride(val);
+                localStorage.setItem('ec_currency_preference', val);
+              }}
+              className="block w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/30 outline-none transition-all"
+            >
+              {CURRENCY_OPTIONS.map(opt => (
+                <option key={opt.code} value={opt.code}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <ServiceFilter
           items={filterItems}
           selected={visibleServices}
@@ -430,8 +473,8 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ lat, lng, country,
         <p className="text-2xs text-zinc-400 dark:text-zinc-600 leading-relaxed">
           <Database className="w-3 h-3 inline-block mr-1 opacity-50" />
           {lang === 'es'
-            ? `Precios calculados con percentil P10–P60 de PostGIS sobre los 10 nodos más cercanos en ${city}, ${country}. Escalado por ancho de banda solicitado (${formatBandwidth(bandwidth)}). Moneda local: ${currency.code}.`
-            : `Prices calculated using PostGIS P10–P60 percentiles over the 10 closest nodes in ${city}, ${country}. Scaled by requested bandwidth (${formatBandwidth(bandwidth)}). Local currency: ${currency.code}.`}
+            ? `Precios calculados con percentil P10–P60 de PostGIS sobre los 10 nodos más cercanos en ${city}, ${country}. Escalado por ancho de banda solicitado (${formatBandwidth(bandwidth)}). Moneda: ${currency.code}.`
+            : `Prices calculated using PostGIS P10–P60 percentiles over the 10 closest nodes in ${city}, ${country}. Scaled by requested bandwidth (${formatBandwidth(bandwidth)}). Currency: ${currency.code}.`}
           <Shield className="w-3 h-3 inline-block ml-2 mr-1 opacity-50" />
           {lang === 'es' ? 'Datos B2B verificados por SLA.' : 'B2B data verified by SLA.'}
         </p>

@@ -47,3 +47,16 @@ export function logout(): void {
 export function isAuthenticated(): boolean {
   return !!(getBuyerAuth() || getCarrierAuth() || getAdminAuth());
 }
+
+// Helper to get any active auth (useful for generic checks)
+export function getActiveAuth(): AuthData | null {
+  return getBuyerAuth() || getCarrierAuth() || getAdminAuth();
+}
+
+// Helper to get role-specific auth
+export function getAuthByRole(role: UserRole): AuthData | null {
+  if (role === 'buyer') return getBuyerAuth();
+  if (role === 'carrier') return getCarrierAuth();
+  if (role === 'admin') return getAdminAuth();
+  return null;
+}

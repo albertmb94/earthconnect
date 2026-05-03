@@ -17,8 +17,8 @@ const SERVICES = [
 
 const BANDWIDTHS = ['50 Mbps', '100 Mbps', '200 Mbps', '500 Mbps', '1 Gbps', '10 Gbps'];
 
-export const CoverageCalculator: React.FC<CoverageCalculatorProps> = ({ onCalculate, prefillCity }) => {
-  const { t, lang } = useI18n();
+export const CoverageCalculator: React.FC<CoverageCalculatorProps> = ({ onCalculate }) => {
+  const { lang } = useI18n();
   const [selectedService, setSelectedService] = useState('');
   const [selectedBandwidth, setSelectedBandwidth] = useState('');
   const [loading, setLoading] = useState(false);

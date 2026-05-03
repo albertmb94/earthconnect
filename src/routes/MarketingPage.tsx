@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 
@@ -54,13 +54,13 @@ const pages: Record<string, RichPage> = {
     capabilities: [
       { icon: '⚡', title: 'Automated & Digitized RFP', description: 'Configure internet, WAN, colocation, or voice requests for one site or hundreds in seconds. Templatize network configurations for even faster RFP creation.' },
       { icon: '📊', title: 'Network & Pricing Intelligence', description: 'Leverage 1,200+ vendor integrations and the industry\'s most current pricing dataset to receive exhaustive bids at best prices — every time.' },
-      { icon: '🔧', title: 'Engineering & Design Support', description: 'Evaluate route diversity with automated KMZ gathering and leverage telecom experts to ensure your network architecture is perfectly optimized.' },
+      { icon: '🔧', title: 'Engineering & Design Support', description: 'Evaluate route diversity with automated KMZ gathering where available from carrier APIs and public infrastructure datasets. Leverage telecom experts to ensure your network architecture is perfectly optimized.' },
       { icon: '📍', title: 'Implementation Tracking', description: 'Track every install milestone. Issues are immediately escalated via proprietary escalation paths to ensure delivery timelines are honored.' },
       { icon: '🔄', title: 'Lifecycle Management', description: 'Post-install, manage your full telecom service lifecycle — carrier workflows, renewals, MACDs, and expense — behind a single pane of glass.' },
-      { icon: '🎯', title: 'Type-1 Sourcing Strategy', description: 'Our platform identifies the right type-1 provider per address — so you never overpay for type-2 access that inflates unit costs by 25%+.' }
+      { icon: '🎯', title: 'Type-1 Sourcing Strategy', description: 'Our platform identifies the right type-1 provider per address — so you never overpay for type-2 access that inflates unit costs by 25%+. For markets without a direct type-1 relationship, we transparently surface the most efficient last-mile provider available and clearly disclose any type-2 markup.' }
     ],
     contentTitle: 'Bulk pricing ≠ best pricing',
-    contentDescription: 'Most enterprises send one RFP to multiple carriers for all sites. But when carriers quote outside their own last mile footprint, they layer type-2 access costs on top — inflating per unit prices even when you think you\'ve negotiated a great discount.\n\nEarthConnect\'s address intelligence identifies the optimal type-1 provider per site, so each carrier only quotes services where they are truly the lowest-cost provider.',
+    contentDescription: 'Most enterprises send one RFP to multiple carriers for all sites. But when carriers quote outside their own last mile footprint, they layer type-2 access costs on top — inflating per unit prices even when you think you\'ve negotiated a great discount.\n\nEarthConnect\'s address intelligence identifies the optimal type-1 provider per site, so each carrier only quotes services where they are truly the lowest-cost provider. For countries without a direct type-1 footprint — such as Mauritania — the platform surfaces the most efficient local last-mile option and transparently discloses any intermediary markup, ensuring you still make an informed decision.',
     contentBlocks: [
       { title: '25%+ lower unit costs vs. type-2 blended pricing', description: '' },
       { title: 'Faster RFP response times — no secondary wholesale quoting', description: '' },
@@ -93,22 +93,22 @@ const pages: Record<string, RichPage> = {
     capabilitiesTitle: 'Visibility across your entire connectivity landscape',
     capabilitiesSubtitle: 'Comprehensive situational awareness including inventory, service, contract, and expense details across every site.',
     capabilities: [
-      { icon: '📋', title: 'Digitize your system of record', description: 'Organize an accurate digital record for every network service, vendor, and cost — with fingertip access to carrier, circuit ID, IP address, bandwidth, and 30+ additional data points.' },
+      { icon: '📋', title: 'Digitalize your system of record', description: 'Organize an accurate digital record for every network service, vendor, and cost — with fingertip access to carrier, circuit ID, IP address, bandwidth, and 30+ additional data points.' },
       { icon: '🔁', title: 'Automate contract renewal & rebid', description: 'Gain transparency into end dates, notice periods, and price escalations. Automated re-bidding fires before any contract expiration to drive continuous cost optimization.' },
       { icon: '🎫', title: 'Streamline MACD workflows', description: 'Open MACD, billing, issue, and SLA breach tickets across all vendors behind a single pane of glass. Build custom reports on costs, services, locations, and vendors in seconds.' },
-      { icon: '💰', title: 'Achieve continuous ROI', description: 'Full network visibility, automated rebids, annual telecom expense audits, and streamlined issue resolution — continuously saving well in excess of industry price deflation.' }
+      { icon: '💰', title: 'Achieve continuous ROI', description: 'Full network visibility, automated rebids, annual telecom expense audits, and streamlined issue resolution — continuously saving well in excess of typical market rate erosion.' }
     ],
     sampleTable: {
       title: 'Sample Inventory Record',
       rows: [
         { label: 'Site', value: 'Paseo de la Castellana 259, Madrid' },
         { label: 'Service Type', value: 'DIA — Dedicated Internet Access', accent: true },
-        { label: 'Provider', value: 'Colt Technology Services' },
+        { label: 'Provider', value: 'Telefónica' },
         { label: 'Bandwidth', value: '500 Mbps symmetric', accent: true },
-        { label: 'Monthly Cost', value: '€946 / month' },
+        { label: 'Monthly Cost', value: '€123.45 / month' },
         { label: 'Contract End', value: 'March 2026' },
         { label: 'Notice Period', value: '90 days' },
-        { label: 'Circuit ID', value: 'COLT-ES-MAD-00421' },
+        { label: 'Circuit ID', value: 'TEF-ES-MAD-00123' },
         { label: 'SLA Availability', value: '99.95%', accent: true },
         { label: 'Last-Mile Type', value: 'Type-1 (COLT fiber)' }
       ]
@@ -137,7 +137,8 @@ const pages: Record<string, RichPage> = {
       { icon: '🎯', title: '100% Accurate Cost Allocation', description: 'AI-powered data extraction ensures costs are fully allocated to validated inventory services only — no mystery charges. Each invoice undergoes human review for accuracy.' },
       { icon: '🔍', title: 'Automated Audit & Variance Analysis', description: 'Each invoice is audited against configurable variance rules: costs vs. contracted rates, disconnected services still billing, month-over-month anomalies.' },
       { icon: '📊', title: 'Rich Reporting & API', description: 'Access granular service, location, and line item data directly or through API. Natural language query system lets you build custom reports by simply asking questions.' },
-      { icon: '💳', title: 'Tailored Bill Pay Options', description: 'Choose No Bill Pay (invoice data delivered in your format) or Bill Consolidation (single monthly bill, we pay carriers on time on your behalf).' }
+      { icon: '💳', title: 'Tailored Bill Pay Options', description: 'Choose No Bill Pay (invoice data delivered in your format) or Bill Consolidation (single monthly bill, we pay carriers on time on your behalf).' },
+      { icon: '🔔', title: 'Invoice Payment Alert System', description: 'Proactive alerts for finance teams on upcoming payment due dates, eliminating late fees and disconnection risks due to unpayment.' }
     ],
     testimonials: [
       { quote: 'We eliminated $180K in annual billing errors within the first quarter. Charges for disconnected circuits were still hitting our accounts for months.', role: 'Finance Director', company: 'Retail Chain, 500+ locations' }
@@ -174,7 +175,7 @@ const pages: Record<string, RichPage> = {
     description: 'Uncontended, symmetric enterprise internet with committed bandwidth, carrier-grade SLA, and direct cloud handoff. The gold standard for business-critical connectivity.',
     kpis: [
       { value: '10M–10G', label: 'Bandwidth range', color: 'text-emerald-400' },
-      { value: '99.99%', label: 'SLA availability', color: 'text-sky-400' },
+      { value: 'Up to 99.99%', label: 'SLA availability', color: 'text-sky-400' },
       { value: '<4h', label: 'MTTR SLA commitment', color: 'text-amber-400' },
       { value: 'Static IPs', label: 'Assigned per circuit', color: 'text-fuchsia-400' }
     ],
@@ -267,10 +268,10 @@ const pages: Record<string, RichPage> = {
     kicker: 'Solution · Satellite LEO / MEO / GEO',
     title: 'Satellite',
     titleAccent: 'Connectivity',
-    description: 'Global satellite connectivity for remote locations, maritime, energy, mining, emergency services, and any market where terrestrial infrastructure is impractical or unavailable.',
+    description: 'Global satellite connectivity for remote locations, maritime, energy, mining, emergency services, and any market where terrestrial infrastructure is impractical or unavailable. Services are delivered with managed service layers through partners such as Blue Wireless, with a roadmap to explore direct partnerships including Amazon Kuiper when available and commercially viable.',
     kpis: [
       { value: 'Global', label: 'Worldwide coverage', color: 'text-emerald-400' },
-      { value: '300M', label: 'LEO peak throughput', color: 'text-sky-400' },
+      { value: '300 Mbps', label: 'LEO peak throughput', color: 'text-sky-400' },
       { value: '2 Gbps', label: 'MEO peak throughput', color: 'text-amber-400' },
       { value: '<20ms', label: 'LEO latency (Starlink NR)', color: 'text-fuchsia-400' }
     ],
@@ -309,65 +310,27 @@ const pages: Record<string, RichPage> = {
     testimonials: []
   },
 
-  'voice-collaboration': {
-    kicker: 'Solution · Voice & Collaboration',
-    title: 'Voice &',
-    titleAccent: 'Collaboration',
-    description: 'Modernize enterprise communications with UCaaS, CCaaS, SIP trunking, hosted VoIP, and POTS replacement strategies for distributed organizations.',
-    kpis: [
-      { value: 'UCaaS', label: 'Unified communications', color: 'text-emerald-400' },
-      { value: 'CCaaS', label: 'Contact center cloud', color: 'text-sky-400' },
-      { value: 'SIP', label: 'Trunk consolidation', color: 'text-amber-400' },
-      { value: 'POTS', label: 'Legacy replacement', color: 'text-fuchsia-400' }
-    ],
-    capabilitiesTitle: 'Communication technology areas',
-    capabilities: [
-      { icon: '☎️', title: 'UCaaS / Hosted VoIP', description: 'Cloud-delivered telephony, video, messaging, and presence for hybrid and distributed workforces.' },
-      { icon: '🎧', title: 'CCaaS', description: 'Cloud contact center platforms with intelligent routing, analytics, and omni-channel engagement.' },
-      { icon: '🔌', title: 'SIP & PRI', description: 'Consolidate voice trunking, reduce per-minute costs, and enable multi-site voice routing.' },
-      { icon: '📞', title: 'POTS Replacement', description: 'Modernize legacy analog lines powering alarms, elevators, fax, and POS systems with LTE or VoIP alternatives. Reduce costs by up to 60%.' }
-    ],
-    testimonials: []
-  },
-
-  'sase-security': {
-    kicker: 'Solution · SASE & Cloud Security',
-    title: 'SASE &',
-    titleAccent: 'Cloud Security',
-    description: 'Unify networking and security into a single cloud-delivered architecture. SASE combines SD-WAN with ZTNA, SWG, CASB, and FWaaS for the modern enterprise edge.',
-    kpis: [
-      { value: 'ZTNA', label: 'Zero Trust access', color: 'text-emerald-400' },
-      { value: 'SWG', label: 'Secure web gateway', color: 'text-sky-400' },
-      { value: 'CASB', label: 'Cloud app security', color: 'text-amber-400' },
-      { value: 'FWaaS', label: 'Firewall as a Service', color: 'text-fuchsia-400' }
-    ],
-    capabilitiesTitle: 'Converged network + security',
-    capabilities: [
-      { icon: '🛡️', title: 'Zero Trust Network Access', description: 'Verify every user, every device, every session. Replace VPN with identity-aware, least-privilege access.' },
-      { icon: '🌐', title: 'Secure Web Gateway', description: 'Inspect and filter all internet-bound traffic for malware, phishing, and data exfiltration — regardless of user location.' },
-      { icon: '☁️', title: 'Cloud Access Security Broker', description: 'Visibility and control over SaaS application usage, data sharing, and shadow IT across your organization.' },
-      { icon: '🔥', title: 'Firewall as a Service', description: 'Cloud-delivered next-gen firewall capabilities applied consistently across all branch, remote, and mobile users.' }
-    ],
-    testimonials: []
-  },
-
-  'cybersecurity': {
-    kicker: 'Solution · Cybersecurity Services',
+  'solutions': {
+    kicker: 'Solutions',
     title: 'Enterprise',
-    titleAccent: 'Cybersecurity',
-    description: 'Proactively defend your enterprise with managed security operations, penetration testing, DDoS protection, and continuous vulnerability management.',
+    titleAccent: 'Connectivity Solutions',
+    description: 'Explore our portfolio of enterprise connectivity and technology lifecycle solutions — from dedicated internet and SD-WAN to satellite, cloud, and managed services.',
     kpis: [
-      { value: '24/7', label: 'Managed SOC', color: 'text-emerald-400' },
-      { value: 'PenTest', label: 'Regular assessments', color: 'text-sky-400' },
-      { value: 'DDoS', label: 'Mitigation & monitoring', color: 'text-amber-400' },
-      { value: 'SIEM', label: 'Log correlation', color: 'text-fuchsia-400' }
+      { value: '9', label: 'Core solution areas', color: 'text-emerald-400' },
+      { value: '190+', label: 'Countries covered', color: 'text-sky-400' },
+      { value: '1,200+', label: 'Carrier integrations', color: 'text-amber-400' },
+      { value: 'Neutral', label: 'Operator independent', color: 'text-fuchsia-400' }
     ],
-    capabilitiesTitle: 'Managed security services',
+    capabilitiesTitle: 'Explore by solution area',
     capabilities: [
-      { icon: '🔍', title: 'Vulnerability Assessments', description: 'Continuous scanning and prioritized remediation guidance for your infrastructure, applications, and endpoints.' },
-      { icon: '🎯', title: 'Penetration Testing', description: 'Simulated attacks to identify exploitable weaknesses before adversaries find them. Compliance-ready reports.' },
-      { icon: '🛡️', title: 'Managed SOC', description: '24/7 security operations center with real-time threat detection, incident response, and forensic analysis.' },
-      { icon: '🌊', title: 'DDoS Protection', description: 'Always-on volumetric and application-layer DDoS monitoring and mitigation for critical internet-facing services.' }
+      { icon: '⬆️', title: 'Dedicated Internet Access (DIA)', description: 'Uncontended, symmetric enterprise internet with committed bandwidth, carrier-grade SLA, and direct cloud handoff.', bullets: ['99.99% SLA uptime', 'Static IP & BGP routing', 'Cloud direct connect'] },
+      { icon: '🏪', title: 'Broadband / FTTX', description: 'Cost-efficient business broadband and fiber-to-the-premises for branch connectivity, SD-WAN underlay, and backup links.', bullets: ['50 Mbps – 1 Gbps', 'Fast provisioning', 'SD-WAN ready'] },
+      { icon: '🔒', title: 'MPLS & SD-WAN', description: 'Private WAN evolution with QoS, policy-based routing, and hybrid coexistence during migration from legacy MPLS.', bullets: ['QoS traffic prioritization', 'Global multi-country', 'SASE-ready overlay'] },
+      { icon: '🛰️', title: 'Satellite Connectivity', description: 'LEO, MEO, and GEO coverage for remote locations, maritime, energy, mining, and emergency services worldwide.', bullets: ['Up to 300 Mbps LEO', 'Low-latency MEO', 'Global GEO coverage'] },
+      { icon: '☁️', title: 'Cloud & Migration', description: 'Cloud-agnostic connectivity sourcing, multi-cloud architecture, SaaS acceleration, and FinOps-aligned governance.', bullets: ['AWS/Azure/GCP on-ramps', 'Multi-cloud WAN', 'Cost optimization'] },
+      { icon: '🔌', title: 'Dark Fiber & EPL', description: 'High-capacity, low-latency private transport for enterprises needing long-term scale and full optical control.', bullets: ['100G+ capacity', '<1 ms metro latency', 'DWDM ready'] },
+      { icon: '📱', title: 'Managed Mobility (MMS)', description: 'Centralized mobile device procurement, logistics, inventory tracking, and cost optimization for distributed workforces.', bullets: ['Global device logistics', 'MDM integration', '30%+ spend reduction'] },
+      { icon: '🎫', title: 'Managed Services (MSP)', description: 'Extend your IT team with global managed service provider support for network operations, MACD, and continuous optimization.', bullets: ['24/7 service desk', 'Moves, Adds, Changes, Disconnects', 'Project Manager as a Service'] }
     ],
     testimonials: []
   },
@@ -388,7 +351,15 @@ const pages: Record<string, RichPage> = {
       { icon: '☁️', title: 'Cloud On-Ramps', description: 'Private, low-latency peering to hyperscale cloud providers through carrier-neutral data center cross-connects.' },
       { icon: '💰', title: 'Cloud Cost Optimization', description: 'Detailed usage analysis, right-sizing recommendations, and reserved instance planning to reduce cloud spend.' },
       { icon: '🔄', title: 'Migration Services', description: 'Plan and execute low-risk migrations from on-premise to cloud or hybrid models with structured runbooks.' },
-      { icon: '🏗️', title: 'Hybrid Architecture', description: 'Design multi-cloud and hybrid-cloud topologies that balance performance, cost, compliance, and resilience requirements.' }
+      { icon: '🏗️', title: 'Hybrid Architecture', description: 'Design multi-cloud and hybrid-cloud topologies that balance performance, cost, compliance, and resilience requirements.' },
+      { icon: '🌐', title: 'Multi-Cloud Network Fabric', description: 'Cloud-agnostic connectivity fabric spanning AWS, Azure, and GCP with consistent policy, security, and observability.' },
+      { icon: '⚡', title: 'SaaS Acceleration', description: 'Optimized routing and edge caching for Microsoft 365, Salesforce, and other business-critical SaaS platforms.' }
+    ],
+    useCasesTitle: 'Cloud use cases',
+    useCases: [
+      { title: 'Cloud Repatriation', description: 'Bring workloads back on-premise or to colocation when cloud costs exceed budget, with minimal disruption.', accent: 'sky' },
+      { title: 'SaaS Connectivity', description: 'Dedicated, low-latency paths to SaaS platforms for better UX and guaranteed throughput.', accent: 'emerald' },
+      { title: 'Multi-Cloud WAN', description: 'Interconnect multiple cloud providers through a single, policy-driven WAN fabric.', accent: 'amber' }
     ],
     testimonials: []
   },
@@ -397,7 +368,7 @@ const pages: Record<string, RichPage> = {
     kicker: 'Solution · Managed Mobility Services',
     title: 'Managed',
     titleAccent: 'Mobility',
-    description: 'Centralize enterprise mobile device procurement, logistics, inventory tracking, help desk, and cost optimization for distributed workforces worldwide.',
+    description: 'Centralize enterprise mobile device procurement, logistics, inventory tracking, help desk, and cost optimization for distributed workforces worldwide. Enterprise mobility is increasingly under-audited — a sticky offering that delivers ongoing visibility and control.',
     kpis: [
       { value: 'Global', label: 'Device logistics', color: 'text-emerald-400' },
       { value: 'MDM', label: 'Management integration', color: 'text-sky-400' },
@@ -410,27 +381,6 @@ const pages: Record<string, RichPage> = {
       { icon: '📦', title: 'Logistics Management', description: 'Warehousing, kitting, shipping, and returns management for distributed enterprises.' },
       { icon: '📊', title: 'Inventory & Usage Audit', description: 'Real-time visibility into device status, carrier plans, usage patterns, and cost anomalies.' },
       { icon: '🎧', title: 'Help Desk & Support', description: 'Multi-tier support for device issues, carrier escalations, and user onboarding/offboarding.' }
-    ],
-    testimonials: []
-  },
-
-  'pots-replacement': {
-    kicker: 'Solution · POTS Replacement',
-    title: 'POTS',
-    titleAccent: 'Replacement',
-    description: 'Protect your network from critical outages by migrating legacy analog voice services (POTS) to modern, cost-effective LTE or VoIP-based digital solutions.',
-    kpis: [
-      { value: '60%', label: 'Cost reduction', color: 'text-emerald-400' },
-      { value: 'LTE', label: 'Wireless alternative', color: 'text-sky-400' },
-      { value: '0', label: 'Copper dependency', color: 'text-amber-400' },
-      { value: 'E911', label: 'Life safety compliant', color: 'text-fuchsia-400' }
-    ],
-    capabilitiesTitle: 'Why replace POTS now?',
-    capabilities: [
-      { icon: '⚠️', title: 'Copper Sunset', description: 'Major carriers are actively decommissioning copper infrastructure. Reliability and repair times are degrading rapidly.' },
-      { icon: '💰', title: 'Cost Escalation', description: 'Legacy POTS line prices have increased 100%+ in many markets. Modern alternatives offer the same function at 40-60% lower cost.' },
-      { icon: '🏥', title: 'Life Safety Systems', description: 'Elevators, fire panels, alarms, and security systems require compliant migration paths that maintain E911 and monitoring services.' },
-      { icon: '🔌', title: 'Zero Disruption Migration', description: 'Port existing numbers, maintain service continuity, and cutover with minimal downtime using certified POTS-in-a-Box devices.' }
     ],
     testimonials: []
   },
@@ -448,10 +398,11 @@ const pages: Record<string, RichPage> = {
     ],
     capabilitiesTitle: 'Full lifecycle support',
     capabilities: [
-      { icon: '🎫', title: 'MACD Management', description: 'Centralized ticketing for all moves, adds, changes, and disconnects across carriers and locations.' },
+      { icon: '🎫', title: 'Moves, Adds, Changes, Disconnects', description: 'Centralized ticketing for all moves, adds, changes, and disconnects across carriers and locations.' },
       { icon: '📡', title: 'Carrier Management', description: 'Single point of contact for multi-carrier environments. Escalation management and vendor coordination.' },
       { icon: '📊', title: 'Performance Monitoring', description: 'Proactive circuit monitoring, SLA tracking, and outage notification with automated carrier escalation.' },
-      { icon: '💳', title: 'Bill Pay & Expense Validation', description: 'Streamline technology expense payments, reduce overhead, and ensure uninterrupted services across your portfolio.' }
+      { icon: '💳', title: 'Telecom Expense Management', description: 'Streamline technology expense payments, reduce overhead, and ensure uninterrupted services across your portfolio.' },
+      { icon: '📋', title: 'Project Manager as a Service', description: 'Dedicated project management for Day-0 deployments, ensuring seamless implementation without removing post-install support consistency.' }
     ],
     testimonials: []
   },
@@ -490,13 +441,16 @@ const pages: Record<string, RichPage> = {
       { value: 'Type-1', label: 'Address-first sourcing', color: 'text-amber-400' },
       { value: 'Neutral', label: 'Operator independent', color: 'text-fuchsia-400' }
     ],
-    capabilitiesTitle: 'Our approach',
+    capabilitiesTitle: 'Mission & Values',
     capabilities: [
+      { icon: '🎯', title: 'Transparency First', description: 'We believe enterprise buyers deserve clear pricing context, unbiased provider comparisons, and full visibility into last-mile economics.' },
       { icon: '🌍', title: 'Address Intelligence', description: 'We combine geocoding, country-level coverage data, and node-based price benchmarking to give buyers real context before they engage carriers.' },
       { icon: '🤝', title: 'Operator Neutral', description: 'We are not a carrier, reseller, or aggregator. Our incentive is helping you find the best provider at the best price for each site.' },
       { icon: '🔄', title: 'Full Lifecycle', description: 'From sourcing through inventory, expense, and renewal — we support the entire telecom service lifecycle, not just the initial quote.' },
       { icon: '🔒', title: 'Enterprise Security', description: 'GDPR compliant, corporate-only access gating, and structured lead workflows designed for B2B procurement environments.' }
     ],
+    contentTitle: 'Our team',
+    contentDescription: 'EarthConnect was founded by telecom industry veterans with more than 30 years of combined experience in enterprise network architecture, carrier negotiations, and global procurement.\n\nWe have built and operated networks across Europe, North America, Asia-Pacific, and Latin America — giving us firsthand understanding of the friction enterprises face when sourcing connectivity across borders.',
     testimonials: [
       { quote: 'EarthConnect changed how we approach multi-country telecom sourcing. Having pricing context before we even start negotiations is invaluable.', role: 'Chief Technology Officer', company: 'Global Manufacturing, 200+ sites' }
     ]
@@ -537,7 +491,7 @@ const pages: Record<string, RichPage> = {
     capabilitiesTitle: 'How it works',
     capabilities: [
       { icon: '📍', title: 'Address Resolution', description: 'Photon geocoding normalizes global addresses into coordinates, extracting city, country, and administrative boundary data.' },
-      { icon: '📊', title: 'Spatial Pricing', description: 'PostGIS finds the 10 closest infrastructure nodes for each technology and calculates P10-P60 price percentiles for realistic market ranges.' },
+      { icon: '📊', title: 'Spatial Pricing', description: 'PostGIS finds the 10 closest infrastructure nodes for each technology and calculates P10-P60 price percentiles for accurate market ranges.' },
       { icon: '🌍', title: 'Coverage Validation', description: 'Coverage-based services (5G, satellite) are validated by country, provider scope, and supported SLA languages.' },
       { icon: '🔒', title: 'Lead Gating', description: 'Magic-link and corporate email validation protect high-value B2B workflows. Free email domains are rejected.' }
     ],
@@ -560,7 +514,10 @@ const pages: Record<string, RichPage> = {
       { icon: '⬆️', title: 'DIA vs Broadband', description: 'DIA is uncontended and SLA-backed; broadband is cost-efficient but shared. Choose based on application criticality and budget.' },
       { icon: '🔄', title: 'MPLS vs SD-WAN', description: 'MPLS provides strict QoS and private routing; SD-WAN offers policy-based flexibility and internet transport. They often coexist.' },
       { icon: '🔌', title: 'Dark Fiber vs Wavelength', description: 'Dark fiber gives full optical control; wavelength services are managed and faster to deploy. Choice depends on scale and timeline.' },
-      { icon: '🛰️', title: 'LEO vs GEO Satellite', description: 'LEO offers low latency and high throughput; GEO provides broader regional coverage at higher latency and lower cost.' }
+      { icon: '🛰️', title: 'LEO vs GEO Satellite', description: 'LEO offers low latency and high throughput; GEO provides broader regional coverage at higher latency and lower cost.' },
+      { icon: '📶', title: '5G as Primary vs Failover', description: '5G can serve as primary access for temporary or rapid-deployment sites, or as an automated failover path within an SD-WAN fabric.' },
+      { icon: '📜', title: 'SLA Fundamentals', description: 'Understand uptime commitments, MTTR, latency guarantees, and financial remedies before signing any enterprise connectivity contract.' },
+      { icon: '💰', title: 'Contract Guidance', description: 'Key terms to negotiate: renewal auto-extensions, notice periods, price escalation caps, and early termination rights.' }
     ],
     testimonials: []
   },
@@ -569,20 +526,20 @@ const pages: Record<string, RichPage> = {
     kicker: 'Company · Methodology',
     title: 'Technology Lifecycle',
     titleAccent: 'Optimization',
-    description: 'Our operating model follows a proven lifecycle: design, source, implement, operate, and optimize. Not just quote and forget — continuous improvement across your global connectivity estate.',
+    description: 'Our operating model follows a proven lifecycle: Architect, Procure, Deploy, Govern, and Evolve. Not just quote and forget — continuous improvement across your global connectivity estate.',
     kpis: [
-      { value: 'Design', label: 'Architecture & fit', color: 'text-emerald-400' },
-      { value: 'Source', label: 'Procurement & pricing', color: 'text-sky-400' },
-      { value: 'Operate', label: 'Inventory & MACD', color: 'text-amber-400' },
-      { value: 'Optimize', label: 'Expense & renewal', color: 'text-fuchsia-400' }
+      { value: 'Architect', label: 'Service fit & design', color: 'text-emerald-400' },
+      { value: 'Procure', label: 'Sourcing & pricing', color: 'text-sky-400' },
+      { value: 'Govern', label: 'Inventory & MACD', color: 'text-amber-400' },
+      { value: 'Evolve', label: 'Expense & renewal', color: 'text-fuchsia-400' }
     ],
     capabilitiesTitle: 'Five-stage methodology',
     capabilities: [
-      { icon: '📐', title: 'Design', description: 'Start with architecture, service fit, and technology selection aligned to business requirements and risk posture.' },
-      { icon: '🔍', title: 'Source', description: 'Automated RFP, type-1 provider identification, pricing intelligence, and transparent carrier comparison per site.' },
-      { icon: '🚀', title: 'Implement', description: 'Track implementation milestones, manage carrier escalations, and ensure delivery timelines are met.' },
-      { icon: '🎫', title: 'Operate', description: 'Maintain inventory, process MACDs, manage carriers, and monitor SLA performance from a single platform.' },
-      { icon: '💰', title: 'Optimize', description: 'Continuous expense validation, renewal rebidding, variance analysis, and market-rate benchmarking.' }
+      { icon: '📐', title: 'Architect', description: 'Start with service fit, address intelligence, and technology selection aligned to business requirements and risk posture.' },
+      { icon: '🔍', title: 'Procure', description: 'Automated RFP, provider identification, spatial pricing intelligence, and transparent comparison per site.' },
+      { icon: '🚀', title: 'Deploy', description: 'Implementation tracking, carrier escalation management, and delivery timeline assurance.' },
+      { icon: '🎫', title: 'Govern', description: 'Digital system of record, MACD workflows, carrier management, and SLA monitoring from a single platform.' },
+      { icon: '💰', title: 'Evolve', description: 'Continuous expense validation, renewal rebidding, variance analysis, and architecture modernization.' }
     ],
     testimonials: []
   },
@@ -706,7 +663,10 @@ const pages: Record<string, RichPage> = {
 const anim = (d: number) => ({ initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, delay: d } });
 
 export const MarketingPage: React.FC = () => {
-  const { slug = 'about-us', lang = 'en' } = useParams();
+  const { slug: paramSlug, lang = 'en' } = useParams();
+  const location = useLocation();
+  // Support both /:lang/:section/:slug and /:lang/solutions (no slug param)
+  const slug = paramSlug || location.pathname.split('/').filter(Boolean).pop() || 'about-us';
   const page = pages[slug] || pages['about-us'];
   const homePath = lang === 'es' ? '/es' : '/en';
 
