@@ -26,8 +26,13 @@ create index if not exists idx_buyer_requests_lead on public.buyer_requests (lea
 
 alter table public.buyer_requests enable row level security;
 
+drop policy if exists "Public read buyer requests" on public.buyer_requests;
 create policy "Public read buyer requests" on public.buyer_requests for select using (true);
+
+drop policy if exists "Public insert buyer requests" on public.buyer_requests;
 create policy "Public insert buyer requests" on public.buyer_requests for insert with check (true);
+
+drop policy if exists "Public update buyer requests" on public.buyer_requests;
 create policy "Public update buyer requests" on public.buyer_requests for update using (true);
 
 -- ==========================================================

@@ -61,8 +61,13 @@ alter table public.node_services enable row level security;
 alter table public.coverage_services enable row level security;
 alter table public.leads enable row level security;
 
+drop policy if exists "Public read node services" on public.node_services;
 create policy "Public read node services" on public.node_services for select using (true);
+
+drop policy if exists "Public read coverage services" on public.coverage_services;
 create policy "Public read coverage services" on public.coverage_services for select using (true);
+
+drop policy if exists "Public lead insert" on public.leads;
 create policy "Public lead insert" on public.leads for insert with check (privacy_accepted = true);
 
 create or replace function public.get_service_insights(

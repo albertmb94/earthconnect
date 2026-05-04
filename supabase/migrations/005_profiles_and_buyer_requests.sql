@@ -30,8 +30,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 COMMENT ON TABLE public.profiles IS 'User profiles linked to Supabase Auth. Ready for real auth migration.';
 
 -- Trigger para auto-actualizar updated_at
-CREATE TRIGGER IF NOT EXISTS trg_profiles_updated_at BEFORE UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_profiles_updated_at') THEN
+    CREATE TRIGGER trg_profiles_updated_at BEFORE UPDATE ON public.profiles
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END $$;
 
 -- 3. TRIGGER: auto-crear perfil cuando se crea un usuario en auth.users
 -- (Este trigger funciona cuando usas Supabase Auth real. Con mockup no se dispara,
@@ -82,7 +87,6 @@ SELECT
   c.tier,
   c.verified,
   c.active,
-  COALESCE(q_stats.avg_response_hours, 0) AS avg_response_hours,
   COALESCE(q_stats.avg_monthly_price, 0) AS avg_monthly_price,
   COALESCE(q_stats.total_quotes, 0) AS total_quotes,
   COALESCE(q_stats.last_quote_at, null) AS last_quote_at
@@ -90,14 +94,13 @@ FROM public.carriers c
 LEFT JOIN (
   SELECT
     q.carrier_id,
-    AVG(EXTRACT(EPOCH FROM (q.submitted_at - ra.created_at)) / 3600) AS avg_response_hours,
     AVG(q.monthly_price) AS avg_monthly_price,
     COUNT(*) AS total_quotes,
     MAX(q.submitted_at) AS last_quote_at
   FROM public.quotes q
-  LEFT JOIN public.request_assignments ra ON ra.carrier_id = q.carrier_id AND ra.buyer_request_id = q.buyer_request_id
+  WHERE q.opportunity_id IS NULL -- only new Master Agent quotes
   GROUP BY q.carrier_id
-) q_stats ON q_stats.carrier_id = c.id;
+) q_stats ON q_stats.carrier_id::text = c.id::text;
 
 COMMENT ON VIEW public.admin_carrier_stats IS 'Aggregated carrier performance for admin assignment suggestions';
 

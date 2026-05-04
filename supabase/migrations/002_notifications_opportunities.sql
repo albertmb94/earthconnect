@@ -59,13 +59,20 @@ alter table public.opportunities enable row level security;
 alter table public.quotes enable row level security;
 
 -- Policies
+drop policy if exists "Carrier can manage own notifications" on public.notification_preferences;
 create policy "Carrier can manage own notifications" on public.notification_preferences
   for all using (true);
 
+drop policy if exists "Public read opportunities" on public.opportunities;
 create policy "Public read opportunities" on public.opportunities for select using (true);
+
+drop policy if exists "Carrier can insert opportunities" on public.opportunities;
 create policy "Carrier can insert opportunities" on public.opportunities for insert with check (true);
 
+drop policy if exists "Public read quotes for opportunities" on public.quotes;
 create policy "Public read quotes for opportunities" on public.quotes for select using (true);
+
+drop policy if exists "Carrier can insert quotes" on public.quotes;
 create policy "Carrier can insert quotes" on public.quotes for insert with check (true);
 
 -- Sample opportunities data

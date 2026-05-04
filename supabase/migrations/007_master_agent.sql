@@ -24,8 +24,13 @@ CREATE TABLE IF NOT EXISTS public.proposals (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TRIGGER trg_proposals_updated_at BEFORE UPDATE ON public.proposals
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_proposals_updated_at') THEN
+    CREATE TRIGGER trg_proposals_updated_at BEFORE UPDATE ON public.proposals
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END $$;
 
 -- FK INDEX: buyer_request_id (CRITICAL — Postgres does NOT auto-index FKs)
 CREATE INDEX IF NOT EXISTS idx_proposals_buyer_request ON public.proposals(buyer_request_id);
@@ -70,8 +75,13 @@ CREATE TABLE IF NOT EXISTS public.deals (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TRIGGER trg_deals_updated_at BEFORE UPDATE ON public.deals
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_deals_updated_at') THEN
+    CREATE TRIGGER trg_deals_updated_at BEFORE UPDATE ON public.deals
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END $$;
 
 -- FK INDEXES (CRITICAL)
 CREATE INDEX IF NOT EXISTS idx_deals_buyer_request ON public.deals(buyer_request_id);

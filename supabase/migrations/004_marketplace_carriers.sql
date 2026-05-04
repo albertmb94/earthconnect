@@ -81,14 +81,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER IF NOT EXISTS trg_carriers_updated_at BEFORE UPDATE ON public.carriers
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
-CREATE TRIGGER IF NOT EXISTS trg_carrier_coverage_updated_at BEFORE UPDATE ON public.carrier_coverage
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
-CREATE TRIGGER IF NOT EXISTS trg_request_assignments_updated_at BEFORE UPDATE ON public.request_assignments
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_carriers_updated_at') THEN
+    CREATE TRIGGER trg_carriers_updated_at BEFORE UPDATE ON public.carriers
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_carrier_coverage_updated_at') THEN
+    CREATE TRIGGER trg_carrier_coverage_updated_at BEFORE UPDATE ON public.carrier_coverage
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_request_assignments_updated_at') THEN
+    CREATE TRIGGER trg_request_assignments_updated_at BEFORE UPDATE ON public.request_assignments
+      FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END $$;
 
 -- 7. RLS (open for development — tighten before production)
 ALTER TABLE public.carriers ENABLE ROW LEVEL SECURITY;

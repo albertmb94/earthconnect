@@ -31,13 +31,10 @@ BEGIN
   stats AS (
     SELECT
       q.carrier_id,
-      AVG(EXTRACT(EPOCH FROM (q.submitted_at - ra.created_at)) / 3600) AS avg_response_hours,
       AVG(q.monthly_price) AS avg_monthly_price,
       COUNT(*)::BIGINT AS total_quotes,
       MAX(q.submitted_at) AS last_quote_at
     FROM public.quotes q
-    LEFT JOIN public.request_assignments ra 
-      ON ra.carrier_id = q.carrier_id AND ra.buyer_request_id = q.buyer_request_id
     GROUP BY q.carrier_id
   )
   SELECT
@@ -45,13 +42,13 @@ BEGIN
     c.company_name,
     c.contact_email,
     c.tier,
-    COALESCE(s.avg_response_hours, 0)::NUMERIC,
+    0::NUMERIC AS avg_response_hours,
     COALESCE(s.avg_monthly_price, 0)::NUMERIC,
     COALESCE(s.total_quotes, 0)::BIGINT,
     s.last_quote_at
   FROM public.carriers c
   JOIN coverage_match cm ON cm.carrier_id = c.id
-  LEFT JOIN stats s ON s.carrier_id = c.id
+  LEFT JOIN stats s ON s.carrier_id::text = c.id::text
   WHERE c.active = true
   ORDER BY
     CASE c.tier
@@ -143,7 +140,7 @@ BEGIN
     q.notes,
     q.submitted_at
   FROM public.quotes q
-  JOIN public.carriers c ON c.id = q.carrier_id
+  JOIN public.carriers c ON c.id::text = q.carrier_id::text
   WHERE q.buyer_request_id = req_id
   ORDER BY q.monthly_price ASC;
 END;
