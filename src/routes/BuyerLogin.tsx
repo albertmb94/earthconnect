@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { setBuyerAuth } from '../lib/auth';
@@ -111,15 +111,6 @@ export const BuyerLogin: React.FC = () => {
               )}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-zinc-400">
-              Want to sell connectivity?{' '}
-              <Link to={`${lang === 'es' ? '/es' : '/en'}/carrier-login`} className="text-zinc-600 dark:text-zinc-300 hover:underline">
-                Join as Vendor
-              </Link>
-            </p>
-          </div>
         </div>
       </motion.div>
     </div>

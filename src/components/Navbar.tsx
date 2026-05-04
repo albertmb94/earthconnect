@@ -250,16 +250,16 @@ export const Navbar: React.FC = () => {
                     onClick={() => setLoginOpen(false)}
                     className="block px-3 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                   >
-                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Customer Portal</div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Access your quotes & orders</div>
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Buyer Portal</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage your requests & proposals</div>
                   </Link>
                   <Link
-                    to={`${prefix}/carrier-login`}
+                    to="/login"
                     onClick={() => setLoginOpen(false)}
                     className="block px-3 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                   >
-                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Carrier Portal</div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage opportunities & quotes</div>
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Admin Portal</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Agent workspace & management</div>
                   </Link>
                 </div>
               </div>
@@ -326,14 +326,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="block py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Customer Portal
-              </Link>
-              <Link
-                to={`${prefix}/carrier-login`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Carrier Portal
+                Buyer Portal
               </Link>
             </div>
           </div>
