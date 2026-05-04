@@ -60,6 +60,8 @@ export const AdminCarriersPage: React.FC = () => {
       tier: addForm.tier,
       verified: false,
       active: true,
+      commission_rate: 15,
+      agreement_type: 'standard',
     });
     if (result.data) {
       setShowAddModal(false);

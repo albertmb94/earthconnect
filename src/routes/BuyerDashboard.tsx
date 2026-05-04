@@ -4,7 +4,7 @@ import { getBuyerAuth, logout } from '../lib/auth';
 import { useI18n } from '../lib/i18n';
 import { dataClient, BuyerRequest } from '../lib/dataClient';
 import { NewRequestModal } from '../components/NewRequestModal';
-import { BuyerRequestQuotes } from '../components/BuyerRequestQuotes';
+import { BuyerProposalView } from '../components/BuyerProposalView';
 
 type RequestStatus = 'pending' | 'quoted' | 'in_progress' | 'completed';
 
@@ -236,13 +236,13 @@ export const BuyerDashboard: React.FC = () => {
         onCreated={fetchRequests}
       />
 
-      <BuyerRequestQuotes
+      <BuyerProposalView
         isOpen={!!selectedRequest}
         onClose={() => setSelectedRequest(null)}
         requestId={selectedRequest?.id || null}
         requestService={selectedRequest?.service || ''}
         requestLocation={selectedRequest ? `${selectedRequest.city}, ${selectedRequest.country}` : ''}
-        onAcceptQuote={fetchRequests}
+        onAcceptProposal={fetchRequests}
       />
     </div>
   );

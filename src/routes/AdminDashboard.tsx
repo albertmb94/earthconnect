@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Download, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Users, Truck, FileText, Shield } from 'lucide-react';
+import { Upload, Download, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Users, Truck, FileText, Search, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { dataClient, AdminStats, LeadRecord, NodeImportRow } from '../lib/dataClient';
 
@@ -9,7 +9,7 @@ export const AdminDashboard: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [fileName, setFileName] = useState<string | null>(null);
   const [uploadResult, setUploadResult] = useState<{ success: number; failed: number } | null>(null);
-  const [stats, setStats] = useState<AdminStats>({ total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0 });
+  const [stats, setStats] = useState<AdminStats>({ total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0, active_deals: 0, monthly_commission_total: 0, active_proposals: 0 });
   const [leads, setLeads] = useState<LeadRecord[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -96,25 +96,32 @@ export const AdminDashboard: React.FC = () => {
 
   const navCards = [
     {
-      label: 'Carriers',
-      description: 'Manage providers, coverage, and verification',
-      icon: Truck,
-      href: '/en/admin/carriers',
-      count: stats.total_carriers,
-    },
-    {
-      label: 'Pending Requests',
-      description: 'Assign buyer requests to carriers',
-      icon: FileText,
-      href: '/en/admin/requests',
+      label: 'Sourcing Pipeline',
+      description: 'Find partners and build proposals',
+      icon: Search,
+      href: '/en/admin/sourcing',
       count: stats.pending_requests,
     },
     {
-      label: 'Quotes',
-      description: 'Review all carrier submissions',
-      icon: Shield,
-      href: '/en/admin/quotes',
-      count: stats.provider_bids,
+      label: 'Proposals',
+      description: 'View and manage buyer proposals',
+      icon: FileText,
+      href: '/en/admin/proposals',
+      count: stats.active_proposals,
+    },
+    {
+      label: 'Commissions',
+      description: 'Revenue by carrier partner',
+      icon: DollarSign,
+      href: '/en/admin/commissions',
+      count: `$${(stats.monthly_commission_total || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+    },
+    {
+      label: 'Carrier Partners',
+      description: 'Manage providers and coverage',
+      icon: Truck,
+      href: '/en/admin/carriers',
+      count: stats.total_carriers,
     },
   ];
 

@@ -37,7 +37,6 @@ export const Landing: React.FC = () => {
   const { incrementSearchCount, isBlocked, verifyCorporateEmail, resetQuota } = useQuota();
   const detectedCountry = detectCountryFromBrowser();
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [showVendorModal, setShowVendorModal] = useState(false);
 
   const handleSelectAddress = (result: GeocodingResult) => {
     // 1. Increment search count
@@ -138,12 +137,6 @@ export const Landing: React.FC = () => {
           >
             {t.heroCtaPrimary}
           </button>
-          <button
-            onClick={() => setShowVendorModal(true)}
-            className="px-8 py-3.5 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold rounded-xl text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all cursor-pointer"
-          >
-            {t.heroCtaSecondary}
-          </button>
         </motion.div>
 
         {/* Trust Signals Bar */}
@@ -185,8 +178,8 @@ export const Landing: React.FC = () => {
               <Globe2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">Global Coverage</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">Check infrastructure in 190+ countries using localized nodes and satellite arrays.</p>
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">Expert Sourcing</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">We negotiate directly with 1,200+ carrier partners to find your best price — you never talk to sales reps.</p>
             </div>
           </div>
 
@@ -195,8 +188,8 @@ export const Landing: React.FC = () => {
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">SLA Verification</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">Direct mapping of cross-border SLAs, multi-lingual support, and enterprise transit routes.</p>
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">Best Price Guarantee</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">Price benchmarking across 190+ countries ensures you never overpay for enterprise connectivity.</p>
             </div>
           </div>
 
@@ -205,8 +198,8 @@ export const Landing: React.FC = () => {
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">PostGIS Percentiles</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">Real-time KNN spatial queries to calculate 10th and 60th pricing percentiles instantly.</p>
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-1">Full Lifecycle Management</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">From sourcing to renewal — we handle your entire connectivity lifecycle behind a single pane of glass.</p>
             </div>
           </div>
         </motion.div>
@@ -217,14 +210,6 @@ export const Landing: React.FC = () => {
         isOpen={showRequestModal}
         onClose={() => setShowRequestModal(false)}
         serviceName={t.heroCtaPrimary}
-      />
-
-      {/* Join as Vendor Modal */}
-      <RequestInfoModal
-        isOpen={showVendorModal}
-        onClose={() => setShowVendorModal(false)}
-        serviceName={t.heroCtaSecondary}
-        serviceContext={{ city: 'Global', country: 'Worldwide' }}
       />
     </div>
   );

@@ -8,13 +8,13 @@ import { MarketingPage } from './routes/MarketingPage';
 import { Login } from './routes/Login';
 import { AdminDashboard } from './routes/AdminDashboard';
 import { AdminCarriersPage } from './routes/AdminCarriersPage';
-import { AdminRequestsPage } from './routes/AdminRequestsPage';
-import { AdminQuotesPage } from './routes/AdminQuotesPage';
+import { AdminSourcingPage } from './routes/AdminSourcingPage';
+import { AdminProposalsPage } from './routes/AdminProposalsPage';
+import { AdminProposalBuilder } from './routes/AdminProposalBuilder';
+import { AdminCommissionDashboard } from './routes/AdminCommissionDashboard';
 import { BuyerLogin } from './routes/BuyerLogin';
-import { CarrierLogin } from './routes/CarrierLogin';
 import { BuyerDashboard } from './routes/BuyerDashboard';
-import { CarrierDashboard } from './routes/CarrierDashboard';
-import { getBuyerAuth, getCarrierAuth, getAdminAuth } from './lib/auth';
+import { getBuyerAuth, getAdminAuth } from './lib/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = !!getAdminAuth();
@@ -26,10 +26,10 @@ const BuyerRoute = ({ children }: { children: React.ReactNode }) => {
   return auth ? <>{children}</> : <Navigate to="/en/buyer-login" replace />;
 };
 
-const CarrierRoute = ({ children }: { children: React.ReactNode }) => {
-  const auth = getCarrierAuth();
-  return auth ? <>{children}</> : <Navigate to="/en/carrier-login" replace />;
-};
+// Carrier routes HIDDEN — Master Agent pivot. Keep imports commented for potential future use.
+// import { CarrierLogin } from './routes/CarrierLogin';
+// import { CarrierDashboard } from './routes/CarrierDashboard';
+// const CarrierRoute = ...;
 
 const RemovedPageRedirect = () => {
   const { lang } = useParams();
@@ -56,16 +56,18 @@ export default function App() {
               <Route path="/:lang/login" element={<Login />} />
               <Route path="/:lang/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/:lang/admin/carriers" element={<ProtectedRoute><AdminCarriersPage /></ProtectedRoute>} />
-              <Route path="/:lang/admin/requests" element={<ProtectedRoute><AdminRequestsPage /></ProtectedRoute>} />
-              <Route path="/:lang/admin/quotes" element={<ProtectedRoute><AdminQuotesPage /></ProtectedRoute>} />
+              <Route path="/:lang/admin/sourcing" element={<ProtectedRoute><AdminSourcingPage /></ProtectedRoute>} />
+              <Route path="/:lang/admin/proposals" element={<ProtectedRoute><AdminProposalsPage /></ProtectedRoute>} />
+              <Route path="/:lang/admin/proposals/build/:requestId" element={<ProtectedRoute><AdminProposalBuilder /></ProtectedRoute>} />
+              <Route path="/:lang/admin/commissions" element={<ProtectedRoute><AdminCommissionDashboard /></ProtectedRoute>} />
+
+              {/* HIDDEN: /admin/requests, /admin/quotes — replaced by Sourcing + Proposals above */}
 
               {/* Buyer Portal */}
               <Route path="/:lang/buyer-login" element={<BuyerLogin />} />
               <Route path="/:lang/buyer" element={<BuyerRoute><BuyerDashboard /></BuyerRoute>} />
 
-              {/* Carrier Portal */}
-              <Route path="/:lang/carrier-login" element={<CarrierLogin />} />
-              <Route path="/:lang/carrier" element={<CarrierRoute><CarrierDashboard /></CarrierRoute>} />
+              {/* HIDDEN: Carrier Portal — Master Agent pivot */}
 
               {/* Solutions Overview (must be before generic /:section/:slug) */}
               <Route path="/:lang/solutions" element={<MarketingPage />} />

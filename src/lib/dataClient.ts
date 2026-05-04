@@ -49,6 +49,8 @@ export interface Carrier {
   tier: 'premium' | 'standard' | 'basic';
   verified: boolean;
   active: boolean;
+  commission_rate: number;
+  agreement_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -126,6 +128,9 @@ export interface AdminStats {
   pending_requests: number;
   total_carriers: number;
   quoted_requests: number;
+  active_deals: number;
+  monthly_commission_total: number;
+  active_proposals: number;
 }
 
 export interface LeadRecord {
@@ -492,12 +497,142 @@ export const dataClient = {
   },
 
   // ================================================================
+  // MASTER AGENT: PROPOSALS + DEALS + COMMISSIONS
+  // ================================================================
+
+  async searchCarrierPartners(country: string, service: string): Promise<Carrier[]> {
+    if (!useReal || !supabase) return [];
+    const { data, error } = await supabase
+      .from('carrier_coverage')
+      .select('carrier_id')
+      .eq('country', country)
+      .eq('service', service)
+      .eq('active', true);
+    if (error || !data?.length) return [];
+    const carrierIds = [...new Set(data.map((d: any) => d.carrier_id))];
+    const { data: carriers } = await supabase
+      .from('carriers')
+      .select('*')
+      .in('id', carrierIds)
+      .eq('active', true)
+      .order('commission_rate', { ascending: false });
+    return (carriers || []) as Carrier[];
+  },
+
+  async createProposal(payload: { buyer_request_id: string; agent_email: string; title: string }): Promise<{ data: any; error: any }> {
+    const client = ensureSupabase();
+    const { data, error } = await client
+      .from('proposals')
+      .insert(payload)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async addProposalOption(payload: { proposal_id: string; tier: string; carrier_id: string; monthly_price: number; setup_fee?: number; sla_uptime?: string; sla_latency?: string; installation_weeks?: number; bandwidth?: string; notes?: string; sort_order?: number }): Promise<{ success: boolean; error?: any }> {
+    const client = ensureSupabase();
+    const { error } = await client.from('proposal_options').insert(payload);
+    if (error) return { success: false, error };
+    return { success: true };
+  },
+
+  async removeAllProposalOptions(proposalId: string): Promise<{ success: boolean; error?: any }> {
+    const client = ensureSupabase();
+    const { error } = await client.from('proposal_options').delete().eq('proposal_id', proposalId);
+    if (error) return { success: false, error };
+    return { success: true };
+  },
+
+  async sendProposal(proposalId: string, expiresInDays = 30): Promise<{ success: boolean; error?: any }> {
+    const client = ensureSupabase();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + expiresInDays);
+    const { error } = await client
+      .from('proposals')
+      .update({ status: 'sent', sent_at: new Date().toISOString(), expires_at: expiresAt.toISOString() })
+      .eq('id', proposalId);
+    if (error) return { success: false, error };
+    return { success: true };
+  },
+
+  async getAllProposals(): Promise<any[]> {
+    if (!useReal || !supabase) return [];
+    const { data, error } = await supabase
+      .from('proposals')
+      .select('*, proposal_options(count)')
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return (data || []).map((p: any) => ({
+      ...p,
+      option_count: p.proposal_options?.[0]?.count || 0,
+    }));
+  },
+
+  async getProposalOptionsForRequest(requestId: string): Promise<any[]> {
+    if (!useReal || !supabase) return [];
+    // First find the proposal for this request
+    const { data: proposals } = await supabase
+      .from('proposals')
+      .select('id')
+      .eq('buyer_request_id', requestId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (!proposals?.length) return [];
+
+    const { data, error } = await supabase
+      .from('proposal_options')
+      .select('*, carriers(company_name, commission_rate)')
+      .eq('proposal_id', proposals[0].id)
+      .order('sort_order', { ascending: true });
+    if (error) return [];
+    return (data || []).map((opt: any) => ({
+      ...opt,
+      carrier_name: opt.carriers?.company_name || 'Unknown',
+      commission_rate: opt.carriers?.commission_rate || 15,
+    }));
+  },
+
+  async createDeal(payload: { buyer_request_id: string; proposal_id: string; option_id: string; carrier_id: string; monthly_revenue: number; commission_rate: number; contract_term_months?: number; carrier_cost?: number }): Promise<{ success: boolean; error?: any }> {
+    const client = ensureSupabase();
+    // Find the proposal_id from the option
+    let proposalId = payload.proposal_id;
+    if (!proposalId) {
+      const { data: opt } = await client.from('proposal_options').select('proposal_id').eq('id', payload.option_id).single();
+      proposalId = opt?.proposal_id || '';
+    }
+    const { error } = await client.from('deals').insert({
+      buyer_request_id: payload.buyer_request_id,
+      proposal_id: proposalId,
+      carrier_id: payload.carrier_id,
+      monthly_revenue: payload.monthly_revenue,
+      carrier_cost: payload.carrier_cost || null,
+      commission_rate: payload.commission_rate,
+      contract_term_months: payload.contract_term_months || 12,
+      status: 'active',
+      signed_at: new Date().toISOString(),
+    });
+    if (error) return { success: false, error };
+    // Mark the buyer request as in_progress
+    await client.from('buyer_requests').update({ status: 'in_progress' }).eq('id', payload.buyer_request_id);
+    return { success: true };
+  },
+
+  async getCommissionDashboard(): Promise<any[]> {
+    if (!useReal || !supabase) return [];
+    const { data, error } = await supabase
+      .from('agent_commission_dashboard')
+      .select('*');
+    if (error) return [];
+    return (data || []) as any[];
+  },
+
+  // ================================================================
   // ADMIN PORTAL: STATS + LEADS
   // ================================================================
 
   async getAdminStats(): Promise<AdminStats> {
     if (!useReal || !supabase) {
-      return { total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0 };
+      return { total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0, active_deals: 0, monthly_commission_total: 0, active_proposals: 0 };
     }
     const { data, error } = await supabase
       .from('admin_stats')
@@ -505,7 +640,7 @@ export const dataClient = {
       .single();
     if (error) {
       console.error('getAdminStats error:', error);
-      return { total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0 };
+      return { total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0, active_deals: 0, monthly_commission_total: 0, active_proposals: 0 };
     }
     return (data || {}) as AdminStats;
   },
