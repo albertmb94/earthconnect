@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GridLayout, Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -87,6 +88,8 @@ export const CompanyOverview: React.FC = () => {
     status: filters.status,
   });
 
+  const navigate = useNavigate();
+
   const { ref: gridContainerRef, width: gridWidth } = useContainerWidth();
 
   const providerOptions = [...new Set(raw.locations.map(l => l.provider))].map(p => ({ label: p, value: p }));
@@ -134,12 +137,12 @@ export const CompanyOverview: React.FC = () => {
       defaultLayout: { x: 0, y: 0, w: 12, h: 2 },
       component: (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 h-full content-center">
-          <KPICard label="Active Locations" value={kpiData.activeLocations} icon={<MapPin className="w-4 h-4" />} trend="up" trendValue="+3" />
-          <KPICard label="Active w/ Services" value={kpiData.activeLocationsWithServices} icon={<Wifi className="w-4 h-4" />} trend="up" trendValue="+2" />
-          <KPICard label="Monthly Spend" value={formatCurrency(kpiData.monthlySpend).replace('$', '')} prefix="$" icon={<ShoppingCart className="w-4 h-4" />} trend="up" trendValue="+5.2%" />
-          <KPICard label="Active Services" value={kpiData.activeServices} icon={<Wifi className="w-4 h-4" />} trend="neutral" trendValue="0" />
-          <KPICard label="Open Tickets" value={kpiData.openTickets} icon={<Ticket className="w-4 h-4" />} trend="up" trendValue="+1" />
-          <KPICard label="Open Orders" value={kpiData.openOrders} icon={<ShoppingCart className="w-4 h-4" />} trend="down" trendValue="-1" />
+          <KPICard label="Active Locations" value={kpiData.activeLocations} icon={<MapPin className="w-4 h-4" />} trend="up" trendValue="+3" onClick={() => navigate('/inventory/locations')} />
+          <KPICard label="Active w/ Services" value={kpiData.activeLocationsWithServices} icon={<Wifi className="w-4 h-4" />} trend="up" trendValue="+2" onClick={() => navigate('/inventory/services')} />
+          <KPICard label="Monthly Spend" value={formatCurrency(kpiData.monthlySpend).replace('$', '')} prefix="$" icon={<ShoppingCart className="w-4 h-4" />} trend="up" trendValue="+5.2%" onClick={() => navigate('/inventory/services')} />
+          <KPICard label="Active Services" value={kpiData.activeServices} icon={<Wifi className="w-4 h-4" />} trend="neutral" trendValue="0" onClick={() => navigate('/inventory/services')} />
+          <KPICard label="Open Tickets" value={kpiData.openTickets} icon={<Ticket className="w-4 h-4" />} trend="up" trendValue="+1" onClick={() => navigate('/inventory/tickets')} />
+          <KPICard label="Open Orders" value={kpiData.openOrders} icon={<ShoppingCart className="w-4 h-4" />} trend="down" trendValue="-1" onClick={() => navigate('/inventory/orders')} />
         </div>
       ),
     },
@@ -149,10 +152,10 @@ export const CompanyOverview: React.FC = () => {
       defaultLayout: { x: 0, y: 2, w: 12, h: 2 },
       component: (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 h-full content-center">
-          <KPICard label="Monthly Commission" value={formatCurrency(commissionData.monthlyCommission).replace('$', '')} prefix="$" icon={<DollarSign className="w-4 h-4" />} trend="up" trendValue="+8.4%" />
-          <KPICard label="Annual Projected" value={formatCurrency(commissionData.annualProjected).replace('$', '')} prefix="$" icon={<TrendingUp className="w-4 h-4" />} trend="up" trendValue="+12.1%" />
-          <KPICard label="Active Deals" value={commissionData.activeDeals} icon={<Package className="w-4 h-4" />} trend="up" trendValue="+2" />
-          <KPICard label="Total Revenue" value={formatCurrency(commissionData.totalRevenue).replace('$', '')} prefix="$" icon={<DollarSign className="w-4 h-4" />} trend="up" trendValue="+6.7%" />
+          <KPICard label="Monthly Commission" value={formatCurrency(commissionData.monthlyCommission).replace('$', '')} prefix="$" icon={<DollarSign className="w-4 h-4" />} trend="up" trendValue="+8.4%" onClick={() => navigate('/inventory/services')} />
+          <KPICard label="Annual Projected" value={formatCurrency(commissionData.annualProjected).replace('$', '')} prefix="$" icon={<TrendingUp className="w-4 h-4" />} trend="up" trendValue="+12.1%" onClick={() => navigate('/inventory/services')} />
+          <KPICard label="Active Deals" value={commissionData.activeDeals} icon={<Package className="w-4 h-4" />} trend="up" trendValue="+2" onClick={() => navigate('/inventory/orders')} />
+          <KPICard label="Total Revenue" value={formatCurrency(commissionData.totalRevenue).replace('$', '')} prefix="$" icon={<DollarSign className="w-4 h-4" />} trend="up" trendValue="+6.7%" onClick={() => navigate('/inventory/services')} />
         </div>
       ),
     },
@@ -161,7 +164,7 @@ export const CompanyOverview: React.FC = () => {
       title: 'Spend by Provider',
       defaultLayout: { x: 0, y: 4, w: 3, h: 5 },
       component: (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col cursor-pointer" onClick={() => navigate('/inventory/services')}>
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -186,7 +189,7 @@ export const CompanyOverview: React.FC = () => {
       title: 'Service Types by Spend',
       defaultLayout: { x: 3, y: 4, w: 3, h: 5 },
       component: (
-        <div className="h-full">
+        <div className="h-full cursor-pointer" onClick={() => navigate('/inventory/services')}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={serviceTypeSpend} layout="vertical" margin={{ left: 5, right: 5, top: 2, bottom: 2 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -204,7 +207,7 @@ export const CompanyOverview: React.FC = () => {
       title: 'Closed Tickets',
       defaultLayout: { x: 6, y: 4, w: 3, h: 5 },
       component: (
-        <div className="h-full">
+        <div className="h-full cursor-pointer" onClick={() => navigate('/inventory/tickets')}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monthlyTrends} margin={{ left: 0, right: 5, top: 2, bottom: 2 }}>
               <defs>
@@ -228,7 +231,7 @@ export const CompanyOverview: React.FC = () => {
       title: 'Completed Orders',
       defaultLayout: { x: 9, y: 4, w: 3, h: 5 },
       component: (
-        <div className="h-full">
+        <div className="h-full cursor-pointer" onClick={() => navigate('/inventory/orders')}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyTrends} margin={{ left: 0, right: 5, top: 2, bottom: 2 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -246,7 +249,7 @@ export const CompanyOverview: React.FC = () => {
       title: 'Commission by Carrier',
       defaultLayout: { x: 0, y: 9, w: 6, h: 5 },
       component: (
-        <div className="h-full">
+        <div className="h-full cursor-pointer" onClick={() => navigate('/inventory/services')}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={commissionData.commissionByCarrier} margin={{ left: 5, right: 5, top: 2, bottom: 2 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -265,18 +268,18 @@ export const CompanyOverview: React.FC = () => {
       defaultLayout: { x: 0, y: 14, w: 12, h: 2 },
       component: (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 h-full content-center">
-          <KPICard label="Active Contracts" value={kpiData.activeContracts} icon={<FileText className="w-4 h-4" />} />
-          <KPICard label="M2M Contracts" value={kpiData.monthToMonthContracts} icon={<RefreshCw className="w-4 h-4" />} />
-          <KPICard label="Expiring ≤90d" value={kpiData.contractsExpiring90Days} icon={<AlertTriangle className="w-4 h-4" />} trend="up" trendValue="+1" />
-          <KPICard label="Pending Issues" value={kpiData.ordersWithPendingIssues} icon={<AlertTriangle className="w-4 h-4" />} />
-          <KPICard label="Auto Renew" value={kpiData.autoRenewContracts} icon={<RefreshCw className="w-4 h-4" />} />
-          <KPICard label="Expired" value={kpiData.expiredContracts} icon={<XCircle className="w-4 h-4" />} />
-          <KPICard label="Expiring ≤180d" value={kpiData.contractsExpiring180Days} icon={<Calendar className="w-4 h-4" />} />
-          <KPICard label="Svcs Exp ≤120d" value={kpiData.servicesExpiring120Days} icon={<Clock className="w-4 h-4" />} trend="up" trendValue="+2" />
+          <KPICard label="Active Contracts" value={kpiData.activeContracts} icon={<FileText className="w-4 h-4" />} onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="M2M Contracts" value={kpiData.monthToMonthContracts} icon={<RefreshCw className="w-4 h-4" />} onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="Expiring ≤90d" value={kpiData.contractsExpiring90Days} icon={<AlertTriangle className="w-4 h-4" />} trend="up" trendValue="+1" onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="Pending Issues" value={kpiData.ordersWithPendingIssues} icon={<AlertTriangle className="w-4 h-4" />} onClick={() => navigate('/inventory/orders')} />
+          <KPICard label="Auto Renew" value={kpiData.autoRenewContracts} icon={<RefreshCw className="w-4 h-4" />} onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="Expired" value={kpiData.expiredContracts} icon={<XCircle className="w-4 h-4" />} onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="Expiring ≤180d" value={kpiData.contractsExpiring180Days} icon={<Calendar className="w-4 h-4" />} onClick={() => navigate('/inventory/contracts')} />
+          <KPICard label="Svcs Exp ≤120d" value={kpiData.servicesExpiring120Days} icon={<Clock className="w-4 h-4" />} trend="up" trendValue="+2" onClick={() => navigate('/inventory/services')} />
         </div>
       ),
     },
-  ], [kpiData, commissionData, spendByProvider, serviceTypeSpend, monthlyTrends, totalSpend]);
+  ], [kpiData, commissionData, spendByProvider, serviceTypeSpend, monthlyTrends, totalSpend, navigate]);
 
   const { layout, isEditing, setIsEditing, onLayoutChange, resetLayout } = useDashboardLayout(widgets);
 

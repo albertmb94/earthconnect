@@ -11,16 +11,24 @@ interface KPICardProps {
   trendValue?: string;
   icon?: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
 export const KPICard: React.FC<KPICardProps> = ({
-  label, value, prefix = '', trend, trendValue, icon, className
+  label, value, prefix = '', trend, trendValue, icon, className, onClick
 }) => {
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
   const trendColor = trend === 'up' ? 'text-emerald-600' : trend === 'down' ? 'text-red-600' : 'text-gray-400';
 
   return (
-    <div className={cn('bg-white rounded-lg border border-slate-100 p-3', className)}>
+    <div
+      onClick={onClick}
+      className={cn(
+        'bg-white rounded-lg border border-slate-100 p-3 transition-all',
+        onClick && 'cursor-pointer hover:border-blue-300 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
+        className
+      )}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-slate-500 truncate">{label}</p>
