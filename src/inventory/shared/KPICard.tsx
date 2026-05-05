@@ -20,7 +20,7 @@ export const KPICard: React.FC<KPICardProps> = ({
   const trendColor = trend === 'up' ? 'text-emerald-600' : trend === 'down' ? 'text-red-600' : 'text-gray-400';
 
   return (
-    <div className={cn('bg-white rounded-xl border border-slate-200 p-5 shadow-sm', className)}>
+    <div className={cn('bg-white rounded-lg border border-slate-100 p-3', className)}>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-slate-500 truncate">{label}</p>
