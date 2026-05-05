@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Responsive as ResponsiveGridLayout, Layout } from 'react-grid-layout';
+import { GridLayout, Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import {
@@ -30,33 +30,35 @@ interface WidgetDef {
 }
 
 function useDashboardLayout(widgets: WidgetDef[]) {
-  const defaultLayouts = {
-    lg: widgets.map(w => ({ i: w.id, ...w.defaultLayout })),
-    md: widgets.map(w => ({ i: w.id, ...w.defaultLayout, w: Math.min(w.defaultLayout.w, 6) })),
-    sm: widgets.map(w => ({ i: w.id, x: 0, y: w.defaultLayout.y * 2, w: 12, h: w.defaultLayout.h })),
-  };
+  const defaultLayout: Layout[] = widgets.map(w => ({ i: w.id, ...w.defaultLayout }));
 
-  const [layouts, setLayouts] = useState(() => {
+  const [layout, setLayout] = useState<Layout[]>(() => {
     try {
       const stored = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored) as Layout[];
+        // Validate that all widgets are present
+        if (parsed.length === widgets.length && widgets.every(w => parsed.some(p => p.i === w.id))) {
+          return parsed;
+        }
+      }
     } catch { /* ignore */ }
-    return defaultLayouts;
+    return defaultLayout;
   });
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const onLayoutChange = useCallback((_: Layout[], allLayouts: Record<string, Layout[]>) => {
-    setLayouts(allLayouts);
-    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts));
+  const onLayoutChange = useCallback((newLayout: Layout[]) => {
+    setLayout(newLayout);
+    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(newLayout));
   }, []);
 
   const resetLayout = useCallback(() => {
-    setLayouts(defaultLayouts);
-    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(defaultLayouts));
-  }, [defaultLayouts]);
+    setLayout(defaultLayout);
+    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(defaultLayout));
+  }, [defaultLayout]);
 
-  return { layouts, isEditing, setIsEditing, onLayoutChange, resetLayout };
+  return { layout, isEditing, setIsEditing, onLayoutChange, resetLayout };
 }
 
 export const CompanyOverview: React.FC = () => {
@@ -287,7 +289,7 @@ export const CompanyOverview: React.FC = () => {
     },
   ], [kpiData, commissionData, spendByProvider, serviceTypeSpend, monthlyTrends, totalSpend, filters, providerOptions, locationOptions, siteOptions]);
 
-  const { layouts, isEditing, setIsEditing, onLayoutChange, resetLayout } = useDashboardLayout(widgets);
+  const { layout, isEditing, setIsEditing, onLayoutChange, resetLayout } = useDashboardLayout(widgets);
 
   return (
     <div className="space-y-4">
@@ -329,17 +331,18 @@ export const CompanyOverview: React.FC = () => {
       </div>
 
       {/* Grid Layout */}
-      <ResponsiveGridLayout
+      <GridLayout
         className="layout"
-        layouts={layouts}
-        breakpoints={{ lg: 1200, md: 996, sm: 768 }}
-        cols={{ lg: 12, md: 12, sm: 12 }}
+        layout={layout}
+        cols={12}
         rowHeight={60}
+        width={1200}
         isDraggable={isEditing}
         isResizable={isEditing}
         onLayoutChange={onLayoutChange}
         margin={[16, 16]}
         containerPadding={[0, 0]}
+        draggableHandle=".drag-handle"
       >
         {widgets.map(widget => (
           <div
@@ -349,7 +352,7 @@ export const CompanyOverview: React.FC = () => {
             }`}
           >
             {widget.id !== 'filters' && (
-              <div className="px-4 py-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className={`px-4 py-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between ${isEditing ? 'drag-handle cursor-move' : ''}`}>
                 <h3 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{widget.title}</h3>
                 {isEditing && <span className="text-[10px] text-blue-500 font-medium">Drag to move</span>}
               </div>
@@ -359,7 +362,7 @@ export const CompanyOverview: React.FC = () => {
             </div>
           </div>
         ))}
-      </ResponsiveGridLayout>
+      </GridLayout>
     </div>
   );
 };
