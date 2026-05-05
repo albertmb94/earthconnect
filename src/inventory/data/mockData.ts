@@ -374,25 +374,37 @@ export const mockTickets: InventoryTicket[] = [
 ];
 
 // ===== COMPUTED KPI DATA =====
-export const getKPIData = (): KPIData => {
-  const activeLocs = mockLocations.filter(l => l.status === 'active');
+export const getKPIData = (
+  locations?: InventoryLocation[],
+  services?: InventoryService[],
+  contracts?: InventoryContract[],
+  orders?: InventoryOrder[],
+  tickets?: InventoryTicket[]
+): KPIData => {
+  const locs = locations || mockLocations;
+  const svcs = services || mockServices;
+  const ctrs = contracts || mockContracts;
+  const ords = orders || mockOrders;
+  const tkts = tickets || mockTickets;
+
+  const activeLocs = locs.filter(l => l.status === 'active');
   const activeLocsWithServices = activeLocs.filter(l => l.activeServices > 0);
-  const totalSpend = mockServices.reduce((sum, s) => sum + s.expectedMonthlySpend, 0);
-  const activeSvcs = mockServices.filter(s => s.status === 'active').length;
-  const openTkts = mockTickets.filter(t => t.status === 'open').length;
-  const openOrds = mockOrders.filter(o => o.status === 'in-progress' || o.status === 'on-hold').length;
-  const activeCtrs = mockContracts.filter(c => c.status === 'active').length;
-  const m2mCtrs = mockContracts.filter(c => c.type === 'Month-to-Month' && c.status === 'active').length;
-  
+  const totalSpend = svcs.reduce((sum, s) => sum + s.expectedMonthlySpend, 0);
+  const activeSvcs = svcs.filter(s => s.status === 'active').length;
+  const openTkts = tkts.filter(t => t.status === 'open').length;
+  const openOrds = ords.filter(o => o.status === 'in-progress' || o.status === 'on-hold').length;
+  const activeCtrs = ctrs.filter(c => c.status === 'active').length;
+  const m2mCtrs = ctrs.filter(c => c.type === 'Month-to-Month' && c.status === 'active').length;
+
   const now = new Date();
   const d90 = new Date(now); d90.setDate(d90.getDate() + 90);
   const d180 = new Date(now); d180.setDate(d180.getDate() + 180);
   const d120 = new Date(now); d120.setDate(d120.getDate() + 120);
-  
-  const ctrsExp90 = mockContracts.filter(c => c.status === 'active' && new Date(c.endDate) <= d90).length;
-  const ctrsExp180 = mockContracts.filter(c => c.status === 'active' && new Date(c.endDate) <= d180).length;
-  const svcsExp120 = mockServices.filter(s => s.expirationDate && new Date(s.expirationDate) <= d120).length;
-  
+
+  const ctrsExp90 = ctrs.filter(c => c.status === 'active' && new Date(c.endDate) <= d90).length;
+  const ctrsExp180 = ctrs.filter(c => c.status === 'active' && new Date(c.endDate) <= d180).length;
+  const svcsExp120 = svcs.filter(s => s.expirationDate && new Date(s.expirationDate) <= d120).length;
+
   return {
     activeLocations: activeLocs.length,
     activeLocationsWithServices: activeLocsWithServices.length,
@@ -404,17 +416,17 @@ export const getKPIData = (): KPIData => {
     monthToMonthContracts: m2mCtrs,
     contractsExpiring90Days: ctrsExp90,
     ordersWithPendingIssues: 1,
-    autoRenewContracts: mockContracts.filter(c => c.autoRenew && c.status === 'active').length,
-    expiredContracts: mockContracts.filter(c => c.status === 'expired').length,
+    autoRenewContracts: ctrs.filter(c => c.autoRenew && c.status === 'active').length,
+    expiredContracts: ctrs.filter(c => c.status === 'expired').length,
     contractsExpiring180Days: ctrsExp180,
     servicesExpiring120Days: svcsExp120,
   };
 };
 
 // ===== CHART DATA =====
-export const getSpendByProvider = (): SpendByProvider[] => {
+export const getSpendByProvider = (services?: InventoryService[]): SpendByProvider[] => {
   const providerMap = new Map<string, number>();
-  mockServices.forEach(s => {
+  (services || mockServices).forEach(s => {
     providerMap.set(s.provider, (providerMap.get(s.provider) || 0) + s.expectedMonthlySpend);
   });
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -423,9 +435,9 @@ export const getSpendByProvider = (): SpendByProvider[] => {
   }));
 };
 
-export const getServiceTypeSpend = (): ServiceTypeSpend[] => {
+export const getServiceTypeSpend = (services?: InventoryService[]): ServiceTypeSpend[] => {
   const typeMap = new Map<string, number>();
-  mockServices.forEach(s => {
+  (services || mockServices).forEach(s => {
     typeMap.set(s.type, (typeMap.get(s.type) || 0) + s.expectedMonthlySpend);
   });
   return Array.from(typeMap.entries())
@@ -440,4 +452,53 @@ export const getMonthlyTrends = (): MonthlyTrend[] => {
     ticketsClosed: [3, 5, 2, 4, 6, 1][i],
     ordersCompleted: [2, 3, 1, 2, 1, 0][i],
   }));
+};
+
+// ===== COMMISSION DATA =====
+export const mockCommissions = [
+  {
+    id: 'comm-1', carrierId: 'carr-1', carrierName: 'Gateway Global',
+    commissionRate: 12, activeDeals: 4,
+    totalMonthlyRevenue: 8450, monthlyCommission: 1014, projectedAnnual: 12168,
+  },
+  {
+    id: 'comm-2', carrierId: 'carr-2', carrierName: 'Lumen Technologies',
+    commissionRate: 8, activeDeals: 2,
+    totalMonthlyRevenue: 3200, monthlyCommission: 256, projectedAnnual: 3072,
+  },
+  {
+    id: 'comm-3', carrierId: 'carr-3', carrierName: 'Zayo Group',
+    commissionRate: 10, activeDeals: 3,
+    totalMonthlyRevenue: 5100, monthlyCommission: 510, projectedAnnual: 6120,
+  },
+  {
+    id: 'comm-4', carrierId: 'carr-4', carrierName: 'Colt Technology',
+    commissionRate: 15, activeDeals: 1,
+    totalMonthlyRevenue: 1800, monthlyCommission: 270, projectedAnnual: 3240,
+  },
+  {
+    id: 'comm-5', carrierId: 'carr-5', carrierName: 'Expereo',
+    commissionRate: 7, activeDeals: 2,
+    totalMonthlyRevenue: 2100, monthlyCommission: 147, projectedAnnual: 1764,
+  },
+  {
+    id: 'comm-6', carrierId: 'carr-6', carrierName: 'Arelion',
+    commissionRate: 9, activeDeals: 1,
+    totalMonthlyRevenue: 1500, monthlyCommission: 135, projectedAnnual: 1620,
+  },
+];
+
+export const getCommissionData = (commissions = mockCommissions) => {
+  return {
+    monthlyCommission: commissions.reduce((s, c) => s + c.monthlyCommission, 0),
+    annualProjected: commissions.reduce((s, c) => s + c.projectedAnnual, 0),
+    activeDeals: commissions.reduce((s, c) => s + c.activeDeals, 0),
+    totalRevenue: commissions.reduce((s, c) => s + c.totalMonthlyRevenue, 0),
+    commissionByCarrier: commissions.map(c => ({
+      carrier: c.carrierName,
+      commission: c.monthlyCommission,
+      revenue: c.totalMonthlyRevenue,
+      deals: c.activeDeals,
+    })),
+  };
 };

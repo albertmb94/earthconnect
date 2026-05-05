@@ -95,7 +95,9 @@ export function DataTable<T>({
     const headers = visibleColumns.map(c => c.header).join(',');
     const rows = sortedData.map(row =>
       visibleColumns.map(c => {
-        const val = c.render ? '' : String((row as Record<string, unknown>)[c.key] ?? '');
+        // Always extract raw value by key; render functions are UI-only
+        const rawVal = (row as Record<string, unknown>)[c.key];
+        const val = rawVal !== undefined && rawVal !== null ? String(rawVal) : '';
         return `"${val.replace(/"/g, '""')}"`;
       }).join(',')
     ).join('\n');

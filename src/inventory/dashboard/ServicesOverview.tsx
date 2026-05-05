@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as ReTooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid
@@ -6,13 +6,29 @@ import {
 import { ChartCard } from '../shared/ChartCard';
 import { DataTable } from '../shared/DataTable';
 import { StatusBadge } from '../shared/StatusBadge';
-import { useInventoryData, formatCurrencyFull, formatNumber } from '../data/useInventoryData';
+import { FilterBar } from '../shared/FilterBar';
+import { useFilteredInventoryData, formatCurrencyFull, formatNumber } from '../data/useInventoryData';
 import type { InventoryService } from '../data/types';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export const ServicesOverview: React.FC = () => {
-  const { services, locations } = useInventoryData();
+  const [filters, setFilters] = useState<Record<string, string[]>>({});
+  const { services, raw } = useFilteredInventoryData({
+    provider: filters.provider,
+    location: filters.location,
+    site: filters.site,
+    status: filters.status,
+    type: filters.type,
+  });
+
+  const providerOptions = [...new Set(raw.services.map(s => s.provider))].map(p => ({ label: p, value: p }));
+  const typeOptions = [...new Set(raw.services.map(s => s.type))].map(t => ({ label: t, value: t }));
+  const statusOptions = [
+    { label: 'Active', value: 'active' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Suspended', value: 'suspended' },
+  ];
 
   const providerData = React.useMemo(() => {
     const map = new Map<string, { spend: number; count: number }>();
@@ -51,6 +67,16 @@ export const ServicesOverview: React.FC = () => {
         <h1 className="text-xl font-bold text-slate-900">Services Overview</h1>
         <p className="text-sm text-slate-500 mt-0.5">All network services across your locations</p>
       </div>
+
+      <FilterBar
+        filters={[
+          { key: 'provider', label: 'Provider', options: providerOptions },
+          { key: 'type', label: 'Service Type', options: typeOptions },
+          { key: 'status', label: 'Status', options: statusOptions },
+        ]}
+        values={filters}
+        onChange={(key, vals) => setFilters(prev => ({ ...prev, [key]: vals }))}
+      />
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

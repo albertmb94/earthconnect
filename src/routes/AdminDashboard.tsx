@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Download, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Users, Truck, FileText, Search, DollarSign } from 'lucide-react';
+import { Upload, Download, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, Users, Truck, FileText, Search, DollarSign, Database, Server } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { dataClient, AdminStats, LeadRecord, NodeImportRow } from '../lib/dataClient';
+import { getDataSource, setDataSource, isSupabaseAvailable } from '../inventory/data/dataSource';
 
 export const AdminDashboard: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -12,6 +13,8 @@ export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<AdminStats>({ total_nodes: 0, cities_covered: 0, provider_bids: 0, total_leads: 0, pending_requests: 0, total_carriers: 0, quoted_requests: 0, active_deals: 0, monthly_commission_total: 0, active_proposals: 0 });
   const [leads, setLeads] = useState<LeadRecord[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [dataSource, setDataSourceState] = useState<'mock' | 'supabase'>(getDataSource);
+  const supabaseAvailable = isSupabaseAvailable();
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +54,11 @@ export const AdminDashboard: React.FC = () => {
       });
     }
     return rows;
+  };
+
+  const handleToggleDataSource = (source: 'mock' | 'supabase') => {
+    setDataSource(source);
+    setDataSourceState(source);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,7 +167,79 @@ export const AdminDashboard: React.FC = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Data Source Toggle */}
+        <div className="mt-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-sm">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                  <Database className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+                </div>
+                <h2 className="text-xl font-bold">Inventory Data Source</h2>
+              </div>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Switch between mock data for testing and live Supabase data for production.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {dataSource === 'supabase' && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  Live
+                </span>
+              )}
+              {dataSource === 'mock' && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium">
+                  <Server className="w-3 h-3" />
+                  Mock
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => handleToggleDataSource('mock')}
+              className={`px-5 py-2.5 text-sm font-medium rounded-xl border transition-all ${
+                dataSource === 'mock'
+                  ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white'
+                  : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-700 dark:hover:bg-zinc-800'
+              }`}
+            >
+              Mock Data
+            </button>
+            <button
+              onClick={() => handleToggleDataSource('supabase')}
+              disabled={!supabaseAvailable}
+              className={`px-5 py-2.5 text-sm font-medium rounded-xl border transition-all ${
+                dataSource === 'supabase'
+                  ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white'
+                  : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-700 dark:hover:bg-zinc-800'
+              } ${!supabaseAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
+            >
+              Supabase Data
+            </button>
+            {!supabaseAvailable && (
+              <span className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-lg">
+                Supabase not configured — set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+              </span>
+            )}
+          </div>
+
+          <div className="mt-4 flex items-center gap-4 text-xs text-zinc-500">
+            <span>Current: <strong className="text-zinc-700 dark:text-zinc-300">{dataSource === 'mock' ? 'Mock Data' : 'Supabase Data'}</strong></span>
+            <span className="text-zinc-300">|</span>
+            <Link to="/inventory/import" className="text-blue-600 hover:underline">
+              Go to Import page →
+            </Link>
+            <span className="text-zinc-300">|</span>
+            <Link to="/inventory" className="text-blue-600 hover:underline">
+              Open Inventory →
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 mt-10">
           {/* Import Section */}
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-6">

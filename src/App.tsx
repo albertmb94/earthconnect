@@ -27,6 +27,7 @@ import { ServiceDetail } from './inventory/services/ServiceDetail';
 import { LocationsMap } from './inventory/locations/LocationsMap';
 import { ContractsList } from './inventory/contracts/ContractsList';
 import { TicketsList } from './inventory/tickets/TicketsList';
+import { ImportPage } from './inventory/import/ImportPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = !!getAdminAuth();
@@ -106,6 +107,7 @@ export default function App() {
                 <Route path="locations" element={<LocationsMap />} />
                 <Route path="contracts" element={<ContractsList />} />
                 <Route path="tickets" element={<TicketsList />} />
+                <Route path="import" element={<ImportPage />} />
               </Route>
 
               {/* Fallback */}

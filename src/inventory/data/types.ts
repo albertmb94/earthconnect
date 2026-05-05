@@ -170,3 +170,21 @@ export interface MonthlyTrend {
   ticketsClosed: number;
   ordersCompleted: number;
 }
+
+export interface InventoryCommission {
+  id: string;
+  carrierId: string;
+  carrierName: string;
+  commissionRate: number; // percentage (e.g., 10 = 10%)
+  activeDeals: number;
+  totalMonthlyRevenue: number;
+  monthlyCommission: number;
+  projectedAnnual: number;
+}
+
+export interface CommissionByCarrier {
+  carrier: string;
+  commission: number;
+  revenue: number;
+  deals: number;
+}

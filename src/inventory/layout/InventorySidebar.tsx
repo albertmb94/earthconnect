@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardList, Network, MapPin, FileText, Ticket,
-  ChevronLeft, ChevronRight, BarChart3, Settings, LogOut
+  ChevronLeft, ChevronRight, BarChart3, Settings, LogOut, Upload
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { label: 'Locations', path: '/inventory/locations', icon: <MapPin className="w-4 h-4" /> },
   { label: 'Contracts', path: '/inventory/contracts', icon: <FileText className="w-4 h-4" /> },
   { label: 'Tickets', path: '/inventory/tickets', icon: <Ticket className="w-4 h-4" />, badge: 1 },
+  { label: 'Import Data', path: '/inventory/import', icon: <Upload className="w-4 h-4" /> },
 ];
 
 const dashboardSubItems: NavItem[] = [
