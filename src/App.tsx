@@ -16,6 +16,18 @@ import { BuyerLogin } from './routes/BuyerLogin';
 import { BuyerDashboard } from './routes/BuyerDashboard';
 import { getBuyerAuth, getAdminAuth } from './lib/auth';
 
+// Network Inventory Platform
+import { InventoryLayout } from './inventory/layout/InventoryLayout';
+import { CompanyOverview } from './inventory/dashboard/CompanyOverview';
+import { ServicesOverview } from './inventory/dashboard/ServicesOverview';
+import { OrdersList } from './inventory/orders/OrdersList';
+import { OrderDetail } from './inventory/orders/OrderDetail';
+import { ServicesList } from './inventory/services/ServicesList';
+import { ServiceDetail } from './inventory/services/ServiceDetail';
+import { LocationsMap } from './inventory/locations/LocationsMap';
+import { ContractsList } from './inventory/contracts/ContractsList';
+import { TicketsList } from './inventory/tickets/TicketsList';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = !!getAdminAuth();
   return isAuth ? <>{children}</> : <Navigate to="/login" replace />;
@@ -82,6 +94,19 @@ export default function App() {
 
               {/* Programmatic SEO Dynamic Routes */}
               <Route path="/:lang/:service/:country/:city" element={<ServicePage />} />
+
+              {/* Network Inventory Platform */}
+              <Route path="/inventory" element={<InventoryLayout />}>
+                <Route index element={<CompanyOverview />} />
+                <Route path="services-overview" element={<ServicesOverview />} />
+                <Route path="orders" element={<OrdersList />} />
+                <Route path="orders/:orderId" element={<OrderDetail />} />
+                <Route path="services" element={<ServicesList />} />
+                <Route path="services/:serviceId" element={<ServiceDetail />} />
+                <Route path="locations" element={<LocationsMap />} />
+                <Route path="contracts" element={<ContractsList />} />
+                <Route path="tickets" element={<TicketsList />} />
+              </Route>
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

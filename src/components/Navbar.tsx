@@ -261,6 +261,14 @@ export const Navbar: React.FC = () => {
                     <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Admin Portal</div>
                     <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Agent workspace & management</div>
                   </Link>
+                  <Link
+                    to="/inventory"
+                    onClick={() => setLoginOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  >
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Network Inventory</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage services, orders & locations</div>
+                  </Link>
                 </div>
               </div>
             )}
