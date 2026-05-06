@@ -76,6 +76,8 @@ END;
 $$;
 
 -- A4. get_service_insights  (public pricing RPC — anon access intentional)
+-- Uses PostGIS types (geography) which live in the public schema,
+-- so search_path must include public rather than be empty.
 CREATE OR REPLACE FUNCTION public.get_service_insights(
   in_lat            double precision,
   in_lng            double precision,
@@ -93,7 +95,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
-SET search_path = ''
+SET search_path = public
 AS $$
 DECLARE
   center_point geography(Point, 4326);
