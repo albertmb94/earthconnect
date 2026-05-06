@@ -1,11 +1,55 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { DataTable } from '../shared/DataTable';
 import { StatusBadge } from '../shared/StatusBadge';
+import { FilterBar } from '../shared/FilterBar';
 import { useInventoryData } from '../data/useInventoryData';
 import type { InventoryTicket } from '../data/types';
 
 export const TicketsList: React.FC = () => {
   const { tickets } = useInventoryData();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialFilters = useMemo(() => {
+    const f: Record<string, string[]> = {};
+    for (const [key, value] of searchParams.entries()) {
+      f[key] = value.split(',');
+    }
+    return f;
+  }, [searchParams]);
+
+  const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
+
+  const statusOptions = [
+    { label: 'Open', value: 'open' },
+    { label: 'Closed', value: 'closed' },
+    { label: 'In Progress', value: 'in-progress' },
+  ];
+
+  const priorityOptions = [
+    { label: 'Low', value: 'low' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High', value: 'high' },
+    { label: 'Critical', value: 'critical' },
+  ];
+
+  const handleFilterChange = (key: string, vals: string[]) => {
+    const next = { ...filters, [key]: vals };
+    setFilters(next);
+    const params = new URLSearchParams(searchParams);
+    if (vals.length) {
+      params.set(key, vals.join(','));
+    } else {
+      params.delete(key);
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const filtered = tickets.filter(t => {
+    if (filters.status?.length && !filters.status.includes(t.status)) return false;
+    if (filters.priority?.length && !filters.priority.includes(t.priority)) return false;
+    return true;
+  });
 
   const columns = [
     {
@@ -27,13 +71,29 @@ export const TicketsList: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Support Tickets</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Track and manage network support issues</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Support Tickets</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Track and manage network support issues</p>
+          {filters.status?.length && (
+            <p className="text-sm text-blue-600 mt-1">
+              Showing {filters.status.join(', ')} tickets ({filtered.length} results)
+            </p>
+          )}
+        </div>
       </div>
 
+      <FilterBar
+        filters={[
+          { key: 'status', label: 'Status', options: statusOptions },
+          { key: 'priority', label: 'Priority', options: priorityOptions },
+        ]}
+        values={filters}
+        onChange={handleFilterChange}
+      />
+
       <DataTable
-        data={tickets}
+        data={filtered}
         columns={columns}
         keyExtractor={t => t.id}
         defaultSortKey="createdDate"

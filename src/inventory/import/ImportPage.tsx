@@ -5,6 +5,10 @@ import {
   mockLocations, mockServices, mockContracts, mockOrders, mockTickets
 } from '../data/mockData';
 import { setDataSource, getDataSource, isSupabaseAvailable } from '../data/dataSource';
+import type {
+  InventoryLocation, InventoryService, InventoryContract,
+  InventoryOrder, InventoryTicket
+} from '../data/types';
 
 const entityTabs = [
   { key: 'locations', label: 'Locations', icon: Database, mockData: mockLocations },
@@ -67,6 +71,145 @@ function parseCSV(text: string): Record<string, string>[] {
   return rows;
 }
 
+// CSV row mappers
+function mapRowsToLocations(rows: Record<string, string>[]): InventoryLocation[] {
+  return rows.map(r => ({
+    id: r.id || `loc-${Math.random().toString(36).substr(2, 9)}`,
+    name: r.name || 'Unnamed Location',
+    address: r.address || '',
+    city: r.city || '',
+    country: r.country || '',
+    countryName: r.country_name || r.country || '',
+    lat: parseFloat(r.lat) || 0,
+    lng: parseFloat(r.lng) || 0,
+    siteId: r.site_id || '',
+    status: (r.status as 'active' | 'inactive') || 'active',
+    alertCount: parseInt(r.alert_count) || 0,
+    openTickets: parseInt(r.open_tickets) || 0,
+    activeServices: parseInt(r.active_services) || 0,
+    currentSpend: parseFloat(r.current_spend) || 0,
+    provider: r.provider || 'Gateway Global',
+    createdAt: r.created_at || new Date().toISOString(),
+  }));
+}
+
+function mapRowsToServices(rows: Record<string, string>[]): InventoryService[] {
+  return rows.map(r => ({
+    id: r.id || `svc-${Math.random().toString(36).substr(2, 9)}`,
+    serviceId: r.service_id || '',
+    name: r.name || '',
+    provider: r.provider || 'Gateway Global',
+    type: r.type || 'Dedicated Internet Access',
+    status: (r.status as 'active' | 'pending' | 'suspended' | 'cancelled') || 'active',
+    expectedMonthlySpend: parseFloat(r.expected_monthly_spend) || 0,
+    siteId: r.site_id || '',
+    locationId: r.location_id || '',
+    locationName: r.location_name || '',
+    country: r.country || '',
+    billActivationDate: r.bill_activation_date || null,
+    completeDate: r.complete_date || null,
+    expirationDate: r.expiration_date || null,
+    bandwidth: r.bandwidth || '',
+    circuitId: r.circuit_id || '',
+    cpeMakeModel: r.cpe_make_model || '',
+    demarcDetails: r.demarc_details || '',
+    fiberConnectorType: r.fiber_connector_type || '',
+    ipDetails: {
+      dnsPrimary: r.dns_primary || '',
+      dnsSecondary: r.dns_secondary || '',
+      gateway: r.gateway || '',
+      subnet: r.subnet || '',
+      subnetType: r.subnet_type || '',
+      addressQty: parseInt(r.address_qty) || 0,
+      useableRange: r.useable_range || '',
+      additionalInfo: r.additional_info || '',
+    },
+    lastMile: r.last_mile || '',
+    managedInventory: r.managed_inventory === 'true',
+    agentInventory: r.agent_inventory !== 'false',
+    billingAccount: r.billing_account || '',
+    serviceProviderId: r.service_provider_id || '',
+  }));
+}
+
+function mapRowsToContracts(rows: Record<string, string>[]): InventoryContract[] {
+  return rows.map(r => ({
+    id: r.id || `c-${Math.random().toString(36).substr(2, 9)}`,
+    contractId: r.contract_id || '',
+    name: r.name || '',
+    provider: r.provider || 'Gateway Global',
+    type: (r.type as 'Fixed Term' | 'Month-to-Month') || 'Fixed Term',
+    status: (r.status as 'active' | 'expired' | 'pending') || 'active',
+    startDate: r.start_date || '',
+    endDate: r.end_date || '',
+    autoRenew: r.auto_renew === 'true',
+    mrc: parseFloat(r.mrc) || 0,
+    services: parseInt(r.services) || 0,
+    locations: parseInt(r.locations) || 0,
+  }));
+}
+
+function mapRowsToOrders(rows: Record<string, string>[]): InventoryOrder[] {
+  return rows.map(r => ({
+    id: r.id || `o-${Math.random().toString(36).substr(2, 9)}`,
+    orderId: r.order_id || '',
+    name: r.name || '',
+    company: r.company || '',
+    provisioner: {
+      name: r.provisioner_name || '',
+      role: r.provisioner_role || '',
+      email: r.provisioner_email || '',
+      phone: r.provisioner_phone || '',
+      initials: (r.provisioner_name || '').split(' ').map((n: string) => n[0]).join('').toUpperCase(),
+    },
+    status: (r.status as 'completed' | 'in-progress' | 'on-hold') || 'in-progress',
+    dealType: r.deal_type || '',
+    createdDate: r.created_date || '',
+    expectedMrc: parseFloat(r.expected_mrc) || 0,
+    services: parseInt(r.services) || 0,
+    createdBy: r.created_by || '',
+    description: {
+      orderType: r.order_type || '',
+      prNumber: r.pr_number || '',
+      hubspotLink: r.hubspot_link || '',
+      client: r.client || '',
+      provider: r.provider || '',
+      serviceDetails: r.service_details || '',
+      term: r.term || '',
+      handoffConnector: r.handoff_connector || '',
+      ipRequirements: r.ip_requirements || '',
+      orderDescription: r.order_description || '',
+    },
+    locations: [],
+    sidebar: {
+      customerName: r.company || '',
+      customerAddress: '',
+      customerWebsite: '',
+      createdDate: r.created_date || '',
+      estimatedStartDate: '',
+      estimatedEndDate: '',
+      completedDate: null,
+    },
+  }));
+}
+
+function mapRowsToTickets(rows: Record<string, string>[]): InventoryTicket[] {
+  return rows.map(r => ({
+    id: r.id || `t-${Math.random().toString(36).substr(2, 9)}`,
+    ticketId: r.ticket_id || '',
+    subject: r.subject || '',
+    status: (r.status as 'open' | 'closed' | 'in-progress') || 'open',
+    priority: (r.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
+    serviceId: r.service_id || '',
+    serviceName: r.service_name || '',
+    locationId: r.location_id || '',
+    locationName: r.location_name || '',
+    createdDate: r.created_date || '',
+    lastUpdated: r.last_updated || '',
+    description: r.description || '',
+  }));
+}
+
 export const ImportPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<EntityKey>('locations');
   const [isUploading, setIsUploading] = useState(false);
@@ -89,28 +232,23 @@ export const ImportPage: React.FC = () => {
       const rows = parseCSV(text);
       if (rows.length === 0) throw new Error('No valid rows found');
 
-      // For now, we import mock data directly as a seed operation
-      // Real CSV parsing would map each row to the typed interface
-      const tab = entityTabs.find(t => t.key === activeTab);
-      if (!tab) throw new Error('Unknown entity type');
-
       let result: { success: number; failed: number } = { success: 0, failed: 0 };
 
       switch (activeTab) {
         case 'locations':
-          result = await inventoryClient.importLocations(tab.mockData as typeof mockLocations);
+          result = await inventoryClient.importLocations(mapRowsToLocations(rows));
           break;
         case 'services':
-          result = await inventoryClient.importServices(tab.mockData as typeof mockServices);
+          result = await inventoryClient.importServices(mapRowsToServices(rows));
           break;
         case 'contracts':
-          result = await inventoryClient.importContracts(tab.mockData as typeof mockContracts);
+          result = await inventoryClient.importContracts(mapRowsToContracts(rows));
           break;
         case 'orders':
-          result = await inventoryClient.importOrders(tab.mockData as typeof mockOrders);
+          result = await inventoryClient.importOrders(mapRowsToOrders(rows));
           break;
         case 'tickets':
-          result = await inventoryClient.importTickets(tab.mockData as typeof mockTickets);
+          result = await inventoryClient.importTickets(mapRowsToTickets(rows));
           break;
       }
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { DataTable } from '../shared/DataTable';
 import { StatusBadge } from '../shared/StatusBadge';
@@ -10,8 +10,20 @@ import type { InventoryService } from '../data/types';
 export const ServicesList: React.FC = () => {
   const { services } = useInventoryData();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
+
+  // Initialize filters from URL params
+  const initialFilters = useMemo(() => {
+    const f: Record<string, string[]> = {};
+    for (const [key, value] of searchParams.entries()) {
+      if (key === 'expiring') continue; // handled separately
+      f[key] = value.split(',');
+    }
+    return f;
+  }, [searchParams]);
+
+  const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
 
   const statusOptions = [
     { label: 'Active', value: 'active' },
@@ -22,10 +34,37 @@ export const ServicesList: React.FC = () => {
   const providerOptions = [...new Set(services.map(s => s.provider))].map(p => ({ label: p, value: p }));
   const typeOptions = [...new Set(services.map(s => s.type))].map(t => ({ label: t, value: t }));
 
+  // Sync filter changes to URL
+  const handleFilterChange = (key: string, vals: string[]) => {
+    const next = { ...filters, [key]: vals };
+    setFilters(next);
+    const params = new URLSearchParams(searchParams);
+    if (vals.length) {
+      params.set(key, vals.join(','));
+    } else {
+      params.delete(key);
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  // Handle special "expiring" param
+  const expiringDays = searchParams.get('expiring');
+
   const filtered = services.filter(s => {
     if (filters.status?.length && !filters.status.includes(s.status)) return false;
     if (filters.provider?.length && !filters.provider.includes(s.provider)) return false;
     if (filters.type?.length && !filters.type.includes(s.type)) return false;
+
+    // Special expiring filter
+    if (expiringDays && s.expirationDate) {
+      const days = parseInt(expiringDays);
+      const exp = new Date(s.expirationDate);
+      const limit = new Date(); limit.setDate(limit.getDate() + days);
+      if (exp > limit) return false;
+    } else if (expiringDays) {
+      return false; // no expiration date = doesn't match expiring filter
+    }
+
     if (search) {
       const term = search.toLowerCase();
       return (
@@ -67,6 +106,11 @@ export const ServicesList: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-900">Services</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage all active and pending network services</p>
+          {expiringDays && (
+            <p className="text-sm text-blue-600 mt-1">
+              Showing services expiring within {expiringDays} days ({filtered.length} results)
+            </p>
+          )}
         </div>
       </div>
 
@@ -78,7 +122,7 @@ export const ServicesList: React.FC = () => {
             { key: 'type', label: 'Service Type', options: typeOptions },
           ]}
           values={filters}
-          onChange={(key, vals) => setFilters(prev => ({ ...prev, [key]: vals }))}
+          onChange={handleFilterChange}
         />
         <div className="flex-1 min-w-[200px]">
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5">

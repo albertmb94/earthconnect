@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, Calendar, Filter, Download, Settings } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import { DataTable } from '../shared/DataTable';
 import { StatusBadge } from '../shared/StatusBadge';
 import { FilterBar } from '../shared/FilterBar';
@@ -10,8 +10,18 @@ import type { InventoryOrder } from '../data/types';
 export const OrdersList: React.FC = () => {
   const { orders } = useInventoryData();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
+
+  const initialFilters = useMemo(() => {
+    const f: Record<string, string[]> = {};
+    for (const [key, value] of searchParams.entries()) {
+      f[key] = value.split(',');
+    }
+    return f;
+  }, [searchParams]);
+
+  const [filters, setFilters] = useState<Record<string, string[]>>(initialFilters);
 
   const statusOptions = [
     { label: 'Completed', value: 'completed' },
@@ -21,6 +31,18 @@ export const OrdersList: React.FC = () => {
 
   const companyOptions = [...new Set(orders.map(o => o.company))].map(c => ({ label: c, value: c }));
   const provisionerOptions = [...new Set(orders.map(o => o.provisioner.name))].map(p => ({ label: p, value: p }));
+
+  const handleFilterChange = (key: string, vals: string[]) => {
+    const next = { ...filters, [key]: vals };
+    setFilters(next);
+    const params = new URLSearchParams(searchParams);
+    if (vals.length) {
+      params.set(key, vals.join(','));
+    } else {
+      params.delete(key);
+    }
+    setSearchParams(params, { replace: true });
+  };
 
   const filtered = orders.filter(o => {
     if (filters.status?.length && !filters.status.includes(o.status)) return false;
@@ -67,6 +89,11 @@ export const OrdersList: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-900">Orders</h1>
           <p className="text-sm text-slate-500 mt-0.5">Track all service orders and installations</p>
+          {filters.status?.length && (
+            <p className="text-sm text-blue-600 mt-1">
+              Showing {filters.status.join(', ')} orders ({filtered.length} results)
+            </p>
+          )}
         </div>
       </div>
 
@@ -79,7 +106,7 @@ export const OrdersList: React.FC = () => {
             { key: 'provisioner', label: 'Provisioner', options: provisionerOptions },
           ]}
           values={filters}
-          onChange={(key, vals) => setFilters(prev => ({ ...prev, [key]: vals }))}
+          onChange={handleFilterChange}
         />
         <div className="flex-1 min-w-[200px]">
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5">
