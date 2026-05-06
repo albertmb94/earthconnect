@@ -27,6 +27,11 @@ export const AdminDashboard: React.FC = () => {
     load();
   }, []);
 
+  // Strip leading formula-injection characters to prevent CSV formula injection
+  // when exported data is opened in spreadsheet applications.
+  const sanitizeCsvField = (value: string): string =>
+    value.replace(/^[=+\-@\t\r]/, '');
+
   const parseCSV = (text: string): NodeImportRow[] => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
@@ -42,12 +47,12 @@ export const AdminDashboard: React.FC = () => {
       const price = parseFloat(row.price_monthly);
       if (isNaN(lat) || isNaN(lng) || isNaN(price)) continue;
       rows.push({
-        requested_tech: row.requested_tech,
-        requested_country: row.requested_country,
-        city: row.city,
-        provider_id: row.provider_id,
+        requested_tech: sanitizeCsvField(row.requested_tech),
+        requested_country: sanitizeCsvField(row.requested_country),
+        city: sanitizeCsvField(row.city),
+        provider_id: sanitizeCsvField(row.provider_id),
         price_monthly: price,
-        currency: row.currency || 'USD',
+        currency: sanitizeCsvField(row.currency || 'USD'),
         bandwidth_mbps: parseInt(row.bandwidth_mbps) || 100,
         lat,
         lng,

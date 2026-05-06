@@ -143,6 +143,9 @@ export const mockLocations: InventoryLocation[] = [
 ];
 
 // ===== SERVICES (61) =====
+function fmt(d: Date) { return d.toISOString().split('T')[0]; }
+const now = new Date();
+
 export const mockServices: InventoryService[] = (() => {
   const services: InventoryService[] = [];
   const activeLocations = mockLocations.filter(l => l.status === 'active');
@@ -166,7 +169,13 @@ export const mockServices: InventoryService[] = (() => {
       country: loc.country,
       billActivationDate: `202${3 + (i % 2)}-0${1 + (i % 9)}-01`,
       completeDate: i < 55 ? `202${3 + (i % 2)}-0${3 + (i % 9)}-15` : null,
-      expirationDate: i < 50 ? `202${6 + (i % 3)}-0${1 + (i % 9)}-01` : null,
+      expirationDate: i < 50
+        ? fmt(i < 15
+            ? new Date(now.getTime() + (30 + i * 6) * 86400000)   // 15 services expiring within ~120d
+            : i < 35
+              ? new Date(now.getTime() + (150 + (i - 15) * 20) * 86400000) // 20 services expiring 150-550d
+              : new Date(now.getTime() + (600 + (i - 35) * 30) * 86400000)) // rest expiring 600d+
+        : null,
       bandwidth: bw,
       circuitId: `CIR-${String(i + 1).padStart(4, '0')}`,
       cpeMakeModel: i % 3 === 0 ? 'Cisco ISR 4331' : i % 3 === 1 ? 'Juniper SRX 345' : 'Fortinet FortiGate 60F',
@@ -192,37 +201,36 @@ export const mockServices: InventoryService[] = (() => {
   return services;
 })();
 
-// ===== CONTRACTS (6) =====
 export const mockContracts: InventoryContract[] = [
   {
     id: 'c-1', contractId: 'CTR-2024-001', name: 'Master Connectivity Agreement 2024',
     provider: GATEWAY_GLOBAL, type: 'Fixed Term', status: 'active',
-    startDate: '2024-01-01', endDate: '2027-01-01', autoRenew: false, mrc: 4250, services: 25, locations: 25,
+    startDate: '2024-01-01', endDate: fmt(new Date(now.getFullYear() + 1, 0, 15)), autoRenew: false, mrc: 4250, services: 25, locations: 25,
   },
   {
     id: 'c-2', contractId: 'CTR-2024-002', name: 'Poland Sites Bundle',
     provider: GATEWAY_GLOBAL, type: 'Fixed Term', status: 'active',
-    startDate: '2024-03-01', endDate: '2026-03-01', autoRenew: true, mrc: 3800, services: 20, locations: 20,
+    startDate: '2024-03-01', endDate: fmt(new Date(now.getTime() + 45 * 86400000)), autoRenew: true, mrc: 3800, services: 20, locations: 20,
   },
   {
     id: 'c-3', contractId: 'CTR-2024-003', name: 'Nordic Extension',
     provider: GATEWAY_GLOBAL, type: 'Month-to-Month', status: 'active',
-    startDate: '2024-06-01', endDate: '2025-06-01', autoRenew: true, mrc: 2100, services: 12, locations: 12,
+    startDate: '2024-06-01', endDate: fmt(new Date(now.getTime() + 130 * 86400000)), autoRenew: true, mrc: 2100, services: 12, locations: 12,
   },
   {
     id: 'c-4', contractId: 'CTR-2023-004', name: 'Baltic Legacy Agreement',
     provider: GATEWAY_GLOBAL, type: 'Fixed Term', status: 'expired',
-    startDate: '2023-01-01', endDate: '2024-01-01', autoRenew: false, mrc: 1500, services: 8, locations: 8,
+    startDate: '2023-01-01', endDate: fmt(new Date(now.getTime() - 30 * 86400000)), autoRenew: false, mrc: 1500, services: 8, locations: 8,
   },
   {
     id: 'c-5', contractId: 'CTR-2024-005', name: 'Denmark Branch Rollout',
     provider: GATEWAY_GLOBAL, type: 'Fixed Term', status: 'active',
-    startDate: '2024-08-01', endDate: '2025-08-01', autoRenew: true, mrc: 2400, services: 10, locations: 10,
+    startDate: '2024-08-01', endDate: fmt(new Date(now.getTime() + 60 * 86400000)), autoRenew: true, mrc: 2400, services: 10, locations: 10,
   },
   {
     id: 'c-6', contractId: 'CTR-2025-006', name: 'Enterprise Upgrade Plan',
     provider: GATEWAY_GLOBAL, type: 'Fixed Term', status: 'active',
-    startDate: '2025-01-01', endDate: '2025-07-15', autoRenew: false, mrc: 3100, services: 15, locations: 15,
+    startDate: '2025-01-01', endDate: fmt(new Date(now.getTime() + 20 * 86400000)), autoRenew: false, mrc: 3100, services: 15, locations: 15,
   },
 ];
 

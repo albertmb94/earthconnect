@@ -59,7 +59,6 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({ defaultEmail, 
     const payload = { ...data, context: hiddenServiceContext };
     await insertLead(payload);
     await new Promise((resolve) => setTimeout(resolve, 700));
-    console.log('Lead captured successfully:', payload);
     setLoading(false);
     setSuccess(true);
   };
