@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Globe, ChevronRight, MapPin, Wifi, ArrowRight } from 'lucide-react';
+import { Globe, ChevronRight, Wifi, ArrowRight, MapPin } from 'lucide-react';
 import { regions } from '../data/countries/regions';
 import { allCountries, getCountriesByRegion, getCountrySlug } from '../data/countries';
 import { useI18n } from '../lib/i18n';
+import { WorldMap } from './WorldMap';
 
 export const CoverageOverview: React.FC = () => {
   const { lang } = useI18n();
@@ -14,8 +15,8 @@ export const CoverageOverview: React.FC = () => {
   useEffect(() => {
     const titleEN = 'Global Connectivity Coverage | Enterprise Internet by Country | EarthConnect';
     const titleES = 'Cobertura Global de Conectividad | Internet Empresarial por País | EarthConnect';
-    const descEN = 'Explore enterprise connectivity coverage across 25+ countries. Compare DIA, MPLS, 5G, and satellite providers by region.';
-    const descES = 'Explora la cobertura de conectividad empresarial en más de 25 países. Compara proveedores DIA, MPLS, 5G y satélite por región.';
+    const descEN = `Explore enterprise connectivity coverage across ${allCountries.length}+ countries. Compare DIA, MPLS, 5G, and satellite providers by region.`;
+    const descES = `Explora la cobertura de conectividad empresarial en más de ${allCountries.length} países. Compara proveedores DIA, MPLS, 5G y satélite por región.`;
 
     document.title = lang === 'es' ? titleES : titleEN;
 
@@ -45,7 +46,7 @@ export const CoverageOverview: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 mb-4">
             <Globe className="w-3.5 h-3.5" />
@@ -61,12 +62,22 @@ export const CoverageOverview: React.FC = () => {
           </p>
         </motion.div>
 
+        {/* Interactive World Map */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-12"
+        >
+          <WorldMap lang={lang || 'en'} />
+        </motion.div>
+
         {/* Region filter */}
         {!activeRegion && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.2 }}
             className="flex flex-wrap justify-center gap-3 mb-12"
           >
             {regions.map((region) => {
@@ -105,7 +116,7 @@ export const CoverageOverview: React.FC = () => {
                 key={region.key}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + regionIdx * 0.1 }}
+                transition={{ delay: 0.2 + regionIdx * 0.1 }}
               >
                 <div className="flex items-center gap-3 mb-6">
                   <Globe className="w-6 h-6 text-blue-600" />

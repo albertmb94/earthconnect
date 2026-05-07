@@ -1,242 +1,179 @@
 import type { CountryData } from './types';
 
+function generateSEO(
+  name: string, region: string, subregion: string, competitors: string[], tech: string[],
+  svc: Partial<Record<string, boolean>>, extra?: { hub?: string; submarine?: string; special?: string }
+) {
+  const hub = extra?.hub || `${name} major cities`;
+  const has5g = svc['5g'] ?? false;
+  const hasFiber = svc['dark-fiber'] ?? false;
+  const marketAdj = competitors.length >= 5 ? 'highly competitive' : competitors.length >= 3 ? 'competitive' : 'consolidated';
+
+  return {
+    marketOverview: `${name} has a ${marketAdj} telecommunications market in ${subregion.replace(/-/g, ' ')}. The market is served by ${competitors.slice(0, 3).join(', ')}${competitors.length > 3 ? ` and ${competitors.length - 3} additional operators` : ''}. ${hub} serves as the primary enterprise connectivity hub.\n\nThe enterprise connectivity segment features ${has5g ? 'commercial 5G services in major urban areas' : '4G LTE as the primary mobile technology'}${hasFiber ? ' and growing dark fiber availability' : ''}. ${extra?.submarine || 'International connectivity is provided through regional submarine cable systems.'}\n\n${extra?.special || `The regulatory environment promotes competition and infrastructure investment. ${has5g ? '5G spectrum has been allocated enabling next-generation mobile broadband.' : ''}`}`,
+    competitors,
+    lastMileTechnologies: tech,
+    averageBandwidth: svc['5g'] && svc['dark-fiber'] ? '100 Mbps–10 Gbps (enterprise), 50–500 Mbps (SME)' :
+      svc['5g'] || svc['dark-fiber'] ? '50–500 Mbps (enterprise), 20–200 Mbps (SME)' :
+      svc.dia ? '20–200 Mbps (enterprise), 10–100 Mbps (SME)' : '10–100 Mbps (enterprise), 5–50 Mbps (SME)',
+    regulatoryNotes: `National telecom regulator enforces competition and wholesale access requirements. ${has5g ? '5G licenses awarded with coverage obligations.' : 'Spectrum planning for advanced services underway.'}`,
+    keyInsights: [
+      `${marketAdj.charAt(0).toUpperCase() + marketAdj.slice(1)} market with ${competitors.length} major operators`,
+      `${hub} is the primary interconnection hub`,
+      `${has5g ? '5G services available' : '4G LTE services available'} in major urban areas`,
+      `${hasFiber ? 'Dark fiber available' : 'Fiber infrastructure expanding'} for enterprise`,
+      extra?.submarine ? 'Submarine cable connectivity' : 'Regional connectivity',
+    ],
+  };
+}
+
+function c(code: string, name: string, nameEs: string, subregion: string, flag: string,
+  svc: Partial<Record<string, boolean>>, competitors: string[], tech: string[],
+  extra?: { hub?: string; submarine?: string; special?: string }): CountryData {
+  return {
+    code, name, nameEs, region: 'americas', subregion, flag,
+    services: [
+      { key: 'dia', available: svc.dia ?? true },
+      { key: 'broadband', available: svc.broadband ?? true },
+      { key: 'mpls', available: svc.mpls ?? true },
+      { key: 'dark-fiber', available: svc['dark-fiber'] ?? false },
+      { key: '5g', available: svc['5g'] ?? false },
+      { key: 'satellite', available: svc.satellite ?? true },
+    ],
+    seo: generateSEO(name, 'americas', subregion, competitors, tech, svc, extra),
+  };
+}
+
 export const americasCountries: CountryData[] = [
-  {
-    code: 'US',
-    name: 'United States',
-    nameEs: 'Estados Unidos',
-    region: 'americas',
-    subregion: 'northern-america',
-    flag: '🇺🇸',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: true },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `The United States has the world's largest and most diverse telecommunications market. Enterprise connectivity is served by a mix of Tier 1 carriers (AT&T, Verizon, Lumen), cable operators (Comcast Business, Spectrum Enterprise), and a thriving ecosystem of competitive carriers, regional providers, and fiber builders. The market offers exceptional depth and competition in major metros, with more limited options in rural areas.
+  // NORTHERN AMERICA
+  c('US', 'United States', 'Estados Unidos', 'northern-america', '🇺🇸', { 'dark-fiber': true, '5g': true },
+    ['AT&T Business', 'Verizon Business', 'Lumen Technologies', 'Comcast Business', 'Spectrum Enterprise', 'Zayo Group', 'Crown Castle Fiber', 'Cogent Communications', 'GTT Communications'],
+    ['Ethernet over Fiber', 'FTTH/FTTP', 'DOCSIS 3.1', '5G FWA/CBRS', 'Dark Fiber', 'SONET/SDH'],
+    { hub: 'Ashburn (Northern Virginia), New York, Chicago, Dallas, Los Angeles, and Silicon Valley', submarine: 'multiple transatlantic and transpacific submarine cables', special: 'The United States has the world\'s largest and most diverse telecommunications market. Ashburn (Northern Virginia) is the world\'s largest data center market with 300+ facilities. Enterprise connectivity is served by Tier 1 carriers, cable operators, and a thriving ecosystem of competitive carriers. The market offers exceptional depth in major metros with 10+ DIA providers typical in the top 50 cities.' }),
+  c('CA', 'Canada', 'Canadá', 'northern-america', '🇨🇦', { 'dark-fiber': true, '5g': true },
+    ['Bell Business', 'Rogers Business', 'Telus Business', 'Cogeco Business', 'Shaw Business', 'Zayo Group', 'Beanfield'],
+    ['FTTH/FTTP', 'Ethernet over Fiber', 'DOCSIS 3.1', '5G FWA', 'Dark Fiber'],
+    { hub: 'Toronto, Montreal, Vancouver, and Calgary', submarine: 'transatlantic cables connecting to Europe and transpacific cables to Asia', special: 'Canada\'s telecom market is dominated by three national carriers — Bell, Rogers, and Telus. Toronto hosts the TORIX internet exchange and is the primary connectivity hub, serving as a natural extension of the US Northeast data center corridor. The CRTC promotes wholesale access to incumbent infrastructure.' }),
 
-Major interconnection hubs include Ashburn (Northern Virginia) — the world's largest data center market — New York, Chicago, Dallas, Los Angeles, and Silicon Valley. These metros host dense ecosystems of carriers, cloud providers, and content networks, creating highly competitive markets for enterprise DIA and interconnection services.
+  // CENTRAL AMERICA
+  c('MX', 'Mexico', 'México', 'central-america', '🇲🇽', { 'dark-fiber': true, '5g': true },
+    ['Telmex Empresas', 'AT&T Mexico', 'Totalplay Empresas', 'Megacable', 'IZZI Business', 'Marcatel', 'Lumen Technologies'],
+    ['FTTH', 'HFC', '5G', 'Ethernet over Fiber', 'Microwave'],
+    { hub: 'Mexico City, Monterrey, Guadalajara, and Querétaro', submarine: 'multiple cables connecting to the US, Central America, and South America', special: 'Mexico\'s telecom market has been transformed by regulatory reforms that broke up the historic Telmex monopoly. Nearshoring trends are driving massive enterprise connectivity demand in Monterrey, Guadalajara, Querétaro, and Ciudad Juárez. Querétaro has emerged as a major data center hub with AWS, Microsoft, and Google presence. Multiple fiber crossings at the US-Mexico border provide low-latency connectivity.' }),
+  c('GT', 'Guatemala', 'Guatemala', 'central-america', '🇬🇹', {},
+    ['Tigo Guatemala', 'Claro Guatemala', 'Movistar Guatemala', 'Guatemala.com'],
+    ['4G LTE', 'FTTH (Guatemala City)', 'Microwave', 'HFC'],
+    { hub: 'Guatemala City', special: 'Guatemala has the largest economy in Central America with three mobile operators competing. Guatemala City is the primary enterprise hub with growing fiber infrastructure. The country\'s proximity to the US and growing tech sector drive enterprise connectivity demand.' }),
+  c('BZ', 'Belize', 'Belize', 'central-america', '🇧🇿', { mpls: false },
+    ['BTL', 'Smart Belize'],
+    ['4G LTE', 'ADSL', 'Cable', 'VSAT'],
+    { hub: 'Belize City and Belmopan', special: 'Belize is a small Central American country with two main telecom operators. The market is limited by small population size. Tourism drives some enterprise connectivity demand. International connectivity is through regional submarine cables.' }),
+  c('HN', 'Honduras', 'Honduras', 'central-america', '🇭🇳', {},
+    ['Tigo Honduras', 'Claro Honduras', 'Hondutel'],
+    ['4G LTE', 'FTTH (Tegucigalpa)', 'Microwave', 'HFC'],
+    { hub: 'Tegucigalpa and San Pedro Sula', special: 'Honduras has a developing telecom market with three operators. Tegucigalpa and San Pedro Sula are the primary enterprise hubs. Growing fiber deployment in major cities. The economy is driven by manufacturing and agriculture.' }),
+  c('SV', 'El Salvador', 'El Salvador', 'central-america', '🇸🇻', {},
+    ['Tigo El Salvador', 'Claro El Salvador', 'Digicel'],
+    ['4G LTE', 'FTTH (San Salvador)', 'Microwave', 'HFC'],
+    { hub: 'San Salvador', special: 'El Salvador has a competitive telecom market with three operators. San Salvador is the primary hub with good fiber infrastructure. The country has adopted Bitcoin as legal tender, driving tech sector growth and enterprise connectivity demand.' }),
+  c('NI', 'Nicaragua', 'Nicaragua', 'central-america', '🇳🇮', { mpls: false },
+    ['Claro Nicaragua', 'Tigo Nicaragua', 'Movistar Nicaragua'],
+    ['4G LTE', 'Microwave', 'ADSL', 'HFC'],
+    { hub: 'Managua', special: 'Nicaragua is the largest country in Central America by area but has limited telecom infrastructure. Three mobile operators serve the market, with Managua as the primary hub. Enterprise connectivity options are limited outside the capital.' }),
+  c('CR', 'Costa Rica', 'Costa Rica', 'central-america', '🇨🇷', { '5g': true },
+    ['ICE (RACSA)', 'Claro Costa Rica', 'Telefónica CR', 'Tuyo Telecom'],
+    ['FTTH', '5G', '4G LTE', 'Ethernet over Fiber', 'HFC'],
+    { hub: 'San José', special: 'Costa Rica has the most advanced telecom market in Central America. Three operators compete with strong fiber infrastructure. San José is a growing tech hub with multinational companies establishing operations. The country\'s educated workforce and stable democracy attract foreign investment driving enterprise connectivity demand.' }),
+  c('PA', 'Panama', 'Panamá', 'central-america', '🇵🇦', { 'dark-fiber': true, '5g': true },
+    ['Cable & Wireless Panamá', 'Claro Panamá', 'Digicel Panamá', 'Más Móvil'],
+    ['FTTH', '5G', '4G LTE', 'Dark Fiber', 'Ethernet over Fiber'],
+    { hub: 'Panama City', submarine: 'multiple submarine cables connecting to Central America, South America, and the Caribbean', special: 'Panama is a regional financial and logistics hub with an advanced telecom market. Panama City hosts multiple data centers and serves as a connectivity gateway between Central and South America. The Panama Canal zone and free trade zones drive strong enterprise connectivity demand. Multiple submarine cable landings provide excellent international bandwidth.' }),
 
-The US market is characterized by a mix of technologies: fiber-based DIA is widely available in urban areas, while cable (DOCSIS 3.1), fixed wireless (5G/CBRS), and emerging LEO satellite services (Starlink Business, OneWeb) serve as alternatives in underserved areas. The FCC's broadband initiatives are driving fiber expansion into rural markets.`,
-      competitors: ['AT&T Business', 'Verizon Business', 'Lumen Technologies', 'Comcast Business', 'Spectrum Enterprise', 'Zayo Group', 'Crown Castle Fiber', 'Consolidated Communications', 'Cogent Communications', 'GTT Communications'],
-      lastMileTechnologies: ['Ethernet over Fiber (EoF)', 'FTTH/FTTP', 'DOCSIS 3.1 (Cable)', '5G FWA / CBRS', 'Dark Fiber', 'SONET/SDH (legacy)', 'T1/T3 (legacy)'],
-      averageBandwidth: '100 Mbps–10 Gbps (enterprise DIA), 25–1000 Mbps (SME)',
-      regulatoryNotes: 'FCC regulates interstate telecommunications. State PUCs regulate intrastate services. Net neutrality rules vary by administration. BEAD program funding rural fiber deployment.',
-      keyInsights: [
-        'World\'s largest data center market (Ashburn, VA) with 300+ facilities',
-        'Deep carrier competition in top 50 metros — 10+ DIA providers typical',
-        'Cable operators (Comcast, Spectrum) compete aggressively on SMB DIA',
-        '5G FWA and CBRS emerging as viable enterprise connectivity options',
-        'Starlink Business and OneWeb expanding satellite enterprise connectivity',
-      ],
-    },
-  },
-  {
-    code: 'CA',
-    name: 'Canada',
-    nameEs: 'Canadá',
-    region: 'americas',
-    subregion: 'northern-america',
-    flag: '🇨🇦',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: true },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Canada's telecommunications market is dominated by three national carriers — Bell, Rogers, and Telus — who operate both wireless and wireline infrastructure. The enterprise connectivity market is well-developed in major metros (Toronto, Montreal, Vancouver, Calgary) but faces significant challenges in serving the country's vast rural and northern territories.
+  // CARIBBEAN
+  c('JM', 'Jamaica', 'Jamaica', 'caribbean', '🇯🇲', {},
+    ['Digicel Jamaica', 'FLOW Jamaica', 'Caricel'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Kingston and Montego Bay', submarine: 'the COLUMBUS-II, ARCOS, and Fibralink submarine cables', special: 'Jamaica has a competitive telecom market with two main operators. Kingston is the enterprise hub with growing fiber infrastructure. Tourism and BPO sectors drive enterprise connectivity demand. Multiple submarine cables provide international bandwidth.' }),
+  c('TT', 'Trinidad and Tobago', 'Trinidad y Tobago', 'caribbean', '🇹🇹', {},
+    ['TSTT', 'Digicel TSTT', 'Bmobile'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Port of Spain', submarine: 'the ECFS and Southern Caribbean Fiber submarine cables', special: 'Trinidad and Tobago has a competitive telecom market driven by its energy sector. Three operators compete, with Port of Spain as the primary hub. The oil and gas industry drives significant enterprise connectivity demand. Good submarine cable connectivity.' }),
+  c('DO', 'Dominican Republic', 'República Dominicana', 'caribbean', '🇩🇴', {},
+    ['Claro DO', 'Altice DO', 'Viva DO'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Santo Domingo and Santiago', submarine: 'the ARCOS, COLUMBUS-II, and SMPR-1 submarine cables', special: 'Dominican Republic has a competitive telecom market with three operators. Santo Domingo is the primary hub with growing fiber infrastructure. Tourism and free trade zones drive enterprise connectivity demand. Multiple submarine cables provide international bandwidth.' }),
+  c('PR', 'Puerto Rico', 'Puerto Rico', 'caribbean', '🇵🇷', { 'dark-fiber': true, '5g': true },
+    ['Liberty Puerto Rico', 'Claro PR', 'T-Mobile PR', 'Optical Networks'],
+    ['FTTH', '5G', '4G LTE', 'Dark Fiber', 'HFC'],
+    { hub: 'San Juan', submarine: 'the ARCOS, COLUMBUS-II, and SAn-1 submarine cables', special: 'Puerto Rico is a US territory with advanced telecom infrastructure. Three major operators compete with extensive fiber and 5G deployment. San Juan is the primary hub with multiple data centers. Hurricane resilience has improved significantly since Maria. US regulations and business environment attract enterprise customers.' }),
+  c('CU', 'Cuba', 'Cuba', 'caribbean', '🇨🇺', { mpls: false, 'dark-fiber': false, '5g': false },
+    ['ETECSA'],
+    ['4G LTE', 'ADSL', 'VSAT'],
+    { hub: 'Havana', special: 'Cuba has a single state-owned telecom operator (ETECSA). Connectivity is very limited by regional standards, with slow speeds and high prices. Enterprise options are extremely constrained. The market is gradually opening with mobile internet availability expanding.' }),
+  c('HT', 'Haiti', 'Haití', 'caribbean', '🇭🇹', { mpls: false, '5g': false },
+    ['Digicel Haiti', 'Natcom'],
+    ['4G LTE', 'Microwave', 'VSAT'],
+    { hub: 'Port-au-Prince', submarine: 'the ECFS and BSCC submarine cables', special: 'Haiti has a challenging telecom environment due to political instability and natural disasters. Two operators serve the market with limited coverage. Enterprise connectivity is concentrated in Port-au-Prince. Satellite is important for backup connectivity.' }),
+  c('BS', 'Bahamas', 'Bahamas', 'caribbean', '🇧🇸', {},
+    ['BTC', 'Aliv'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Nassau and Freeport', submarine: 'the ARCOS and Bahamas Domestic Submarine Network', special: 'Bahamas has a small but well-connected telecom market. Two operators serve the island nation. Tourism drives significant enterprise connectivity demand. The proximity to Florida provides good connectivity to US networks.' }),
+  c('CU', 'Curaçao', 'Curazao', 'caribbean', '🇨🇼', {},
+    ['FLOW Curaçao', 'Digicel Curaçao'],
+    ['4G LTE', 'FTTH', 'HFC'],
+    { hub: 'Willemstad', submarine: 'the COLUMBUS-II and ARCOS submarine cables', special: 'Curaçao has a small but well-connected telecom market serving the Dutch Caribbean. Two operators provide services. The financial services and tourism sectors drive enterprise connectivity demand.' }),
+  c('AW', 'Aruba', 'Aruba', 'caribbean', '🇦🇼', {},
+    ['SETAR', 'Digicel Aruba'],
+    ['4G LTE', 'FTTH', 'HFC'],
+    { hub: 'Oranjestad', submarine: 'the ARCOS and PAN-AM submarine cables', special: 'Aruba has a small but well-connected telecom market. Two operators serve the island. Tourism is the primary economic driver, creating demand for enterprise connectivity in the hospitality sector.' }),
 
-Toronto is Canada's primary connectivity hub, hosting the TORIX internet exchange and serving as the main interconnection point with US networks. The city's proximity to New York and Ashburn makes it a natural extension of the US Northeast data center corridor. Montreal and Vancouver also serve as important regional hubs with growing data center markets.
-
-The Canadian enterprise market offers strong fiber-based DIA in urban centers, with increasing competition from cable operators (Rogers, Shaw) and alternative carriers. The CRTC's regulatory framework promotes wholesale access to incumbent infrastructure, though the market remains more concentrated than the US.`,
-      competitors: ['Bell Business', 'Rogers Business', 'Telus Business', 'Cogeco Business', 'Shaw Business', 'Zayo Group', 'Lumen Technologies', 'Allstream', 'Beanfield'],
-      lastMileTechnologies: ['FTTH/FTTP', 'Ethernet over Fiber', 'DOCSIS 3.1 (Cable)', '5G FWA', 'Dark Fiber', 'Leased Lines'],
-      averageBandwidth: '100 Mbps–10 Gbps (enterprise DIA), 50–500 Mbps (SME)',
-      regulatoryNotes: 'CRTC regulates telecommunications and promotes wholesale access. Broadband fund targets rural connectivity improvement. 5G spectrum allocated across multiple bands.',
-      keyInsights: [
-        'Toronto (TORIX) is the primary Canadian interconnection hub',
-        'Three national carriers dominate — Bell, Rogers, Telus',
-        'Strong fiber availability in Toronto, Montreal, Vancouver, Calgary',
-        'Growing cable operator competition from Rogers and Shaw',
-        'Northern and rural territories rely on satellite and fixed wireless',
-      ],
-    },
-  },
-  {
-    code: 'BR',
-    name: 'Brazil',
-    nameEs: 'Brasil',
-    region: 'americas',
-    subregion: 'south-america',
-    flag: '🇧🇷',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: true },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Brazil is Latin America's largest telecommunications market, with a rapidly growing enterprise connectivity segment. The market is led by Claro (América Móvil), Vivo (Telefônica Brasil), and Oi, with TIM Brasil as the fourth mobile operator. São Paulo is the primary connectivity hub, hosting the PTT.br (PTTMetro) internet exchange — one of the largest in the Southern Hemisphere.
-
-The Brazilian enterprise market is characterized by strong demand for cloud connectivity, driven by the expansion of AWS, Azure, and Google Cloud regions in São Paulo. Fiber deployment has accelerated dramatically, with hundreds of regional ISPs (provedores regionais) competing with national carriers in smaller cities. Brazil's 5G rollout is one of the most ambitious in Latin America, with standalone networks launching in major cities.
-
-The country's geographic size creates unique challenges for nationwide connectivity. Submarine cables connecting São Paulo to Miami, Fortaleza to Lisbon, and multiple Caribbean routes provide international bandwidth, but domestic long-haul fiber routes face capacity constraints in some regions.`,
-      competitors: ['Claro Empresas', 'Vivo Empresas (Telefônica)', 'Oi Empresas', 'TIM Brasil', 'Algar Telecom', 'Ascenty (Data Center)', 'Lumen Technologies', 'GlobeNet', 'Sparkle'],
-      lastMileTechnologies: ['FTTH (expanding rapidly)', 'FTTC/VDSL2', '5G SA/NSA', 'DOCSIS 3.1 (Cable)', 'Microwave PTP', 'Satellite (Starlink growing)'],
-      averageBandwidth: '100–500 Mbps (urban enterprise), 50–200 Mbps (SME)',
-      regulatoryNotes: 'Anatel regulates telecommunications. 5G auction completed with coverage obligations. Fiber deployment regulated with open access requirements in subsidized areas.',
-      keyInsights: [
-        'São Paulo (PTT.br) is the largest internet exchange in Latin America',
-        'Hundreds of regional ISPs compete with national carriers on fiber',
-        'AWS, Azure, Google Cloud all have São Paulo regions — driving interconnection demand',
-        '5G standalone rollout advancing rapidly in major cities',
-        'Submarine cables connect to Miami, Lisbon, and Caribbean hubs',
-      ],
-    },
-  },
-  {
-    code: 'MX',
-    name: 'Mexico',
-    nameEs: 'México',
-    region: 'americas',
-    subregion: 'central-america',
-    flag: '🇲🇽',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: true },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Mexico's telecommunications market has been transformed by regulatory reforms that broke up the historic monopoly of Telmex/Telcel (Carlos Slim's América Móvil empire). The market now features competition from AT&T Mexico, Telefónica Mexico (sold to AT&T), and a growing number of alternative carriers and fiber builders. Mexico City is the primary connectivity hub, hosting the CIX (CABASE) internet exchange.
-
-The enterprise connectivity market is growing rapidly, driven by nearshoring trends that are bringing manufacturing and technology operations from Asia to Mexico. Cities like Monterrey, Guadalajara, Querétaro, and Ciudad Juárez are experiencing surging demand for enterprise DIA and cloud connectivity. Querétaro has emerged as a major data center hub, attracting AWS, Microsoft, and Google.
-
-Mexico's proximity to the United States creates natural connectivity corridors, with multiple fiber crossings at the border (Laredo, El Paso, Nogales, Tijuana). This makes Mexico an attractive location for enterprises requiring low-latency connectivity to US networks.`,
-      competitors: ['Telmex Empresas (América Móvil)', 'AT&T Mexico', 'Totalplay Empresas', 'Megacable', 'IZZI Business', 'Marcatel', 'Cablevisión', 'Lumen Technologies'],
-      lastMileTechnologies: ['FTTH (expanding)', 'HFC (Cable)', '5G (limited deployment)', 'Ethernet over Fiber', 'Microwave PTP', 'Leased Lines'],
-      averageBandwidth: '50–300 Mbps (enterprise DIA), 20–100 Mbps (SME)',
-      regulatoryNotes: 'IFT (Federal Institute of Telecommunications) regulates the market. Preponderant operator (América Móvil) subject to asymmetric regulation. 5G spectrum auction held.',
-      keyInsights: [
-        'Nearshoring trend driving massive enterprise connectivity demand',
-        'Querétaro emerging as Mexico\'s data center capital',
-        'Multiple fiber crossings at US-Mexico border for low-latency connectivity',
-        'Regulatory reforms created genuine competition after Telmex breakup',
-        'Guadalajara and Monterrey are secondary connectivity hubs',
-      ],
-    },
-  },
-  {
-    code: 'CO',
-    name: 'Colombia',
-    nameEs: 'Colombia',
-    region: 'americas',
-    subregion: 'south-america',
-    flag: '🇨🇴',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: false, note: 'Limited availability in major cities' },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Colombia's telecommunications market is one of the most competitive in Latin America, with four major mobile operators (Claro, Movistar, Tigo, WOM) and a growing fixed-line enterprise segment. Bogotá is the primary connectivity hub, hosting the NAP Colombia (NAP of the Americas) internet exchange and serving as the country's data center capital.
-
-The enterprise connectivity market is growing rapidly, driven by Colombia's expanding technology sector, digital transformation initiatives, and increasing foreign investment. Medellín has emerged as a secondary tech hub, attracting startups and multinational operations. The government's "Plan Vive Digital" has accelerated fiber deployment in secondary cities.
-
-Colombia's Pacific coast location provides strategic connectivity to both the Atlantic and Pacific submarine cable systems. The country is connected to the South America-1 (SAm-1) cable and has new cables planned to improve international bandwidth redundancy.`,
-      competitors: ['Claro Empresas (América Móvil)', 'Movistar Empresas (Telefónica)', 'Tigo Empresas (Millicom)', 'WOM', 'ETB (Empresa de Telecomunicaciones de Bogotá)', 'Azteca Comunicaciones', 'Lumen Technologies'],
-      lastMileTechnologies: ['FTTH (expanding in urban areas)', 'HFC (Cable)', '5G (initial deployment)', 'Ethernet over Fiber', 'Microwave PTP', 'Satellite'],
-      averageBandwidth: '50–300 Mbps (urban enterprise), 20–100 Mbps (SME)',
-      regulatoryNotes: 'CRC (Comisión de Regulación de Comunicaciones) regulates the market. MinTIC sets digital policy. 5G auction completed with coverage targets.',
-      keyInsights: [
-        'NAP Colombia is a key interconnection point for the Andean region',
-        'Bogotá and Medellín are primary enterprise connectivity markets',
-        'Four mobile operators create strong competitive dynamics',
-        'Pacific coast location provides dual ocean connectivity',
-        'Growing data center market driven by cloud provider expansion',
-      ],
-    },
-  },
-  {
-    code: 'AR',
-    name: 'Argentina',
-    nameEs: 'Argentina',
-    region: 'americas',
-    subregion: 'south-america',
-    flag: '🇦🇷',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: false, note: 'Very limited availability' },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Argentina has a well-developed telecommunications market centered in Buenos Aires, which serves as the country's primary connectivity hub and hosts the CABASE internet exchange. The market is served by Telefónica (Movistar), Telecom Argentina (Personal/Fibertel), Claro, and a growing number of regional ISPs and alternative carriers.
-
-The Argentine enterprise connectivity market faces challenges from economic volatility and currency restrictions, but Buenos Aires remains a critical connectivity point for the Southern Cone region. The city has a growing data center market, with multiple facilities serving both domestic and international customers. Córdoba and Rosario are secondary enterprise markets.
-
-Argentina's submarine cable connectivity includes the SAm-1 system (connecting to Brazil, Chile, and the US) and the new Malbec cable to Brazil. The country's Atlantic coast position provides strategic connectivity options for enterprises requiring diverse routing.`,
-      competitors: ['Telecom Argentina (Personal/Fibertel)', 'Telefónica (Movistar)', 'Claro Argentina', 'Metrotel', 'Silica Networks', 'Nababis', 'Lumen Technologies'],
-      lastMileTechnologies: ['FTTH (expanding)', 'HFC (Cable)', '5G (limited)', 'Ethernet over Fiber', 'Microwave PTP', 'Satellite'],
-      averageBandwidth: '50–200 Mbps (urban enterprise), 20–100 Mbps (SME)',
-      regulatoryNotes: 'ENACOM (Ente Nacional de Comunicaciones) regulates telecommunications. Economic volatility affects infrastructure investment. 5G spectrum allocation in progress.',
-      keyInsights: [
-        'Buenos Aires (CABASE) is the primary Southern Cone interconnection hub',
-        'Economic volatility creates challenges for infrastructure investment',
-        'Growing data center market in Buenos Aires metro area',
-        'Malbec submarine cable improves connectivity to Brazil',
-        'Córdoba and Rosario emerging as secondary enterprise markets',
-      ],
-    },
-  },
-  {
-    code: 'CL',
-    name: 'Chile',
-    nameEs: 'Chile',
-    region: 'americas',
-    subregion: 'south-america',
-    flag: '🇨🇱',
-    services: [
-      { key: 'dia', available: true },
-      { key: 'broadband', available: true },
-      { key: 'mpls', available: true },
-      { key: 'dark-fiber', available: true },
-      { key: '5g', available: true },
-      { key: 'satellite', available: true },
-    ],
-    seo: {
-      marketOverview: `Chile has one of the most advanced telecommunications markets in Latin America, with high fiber penetration and strong regulatory oversight. The market is led by Movistar (Telefónica), Claro, Entel, and WOM, with Wom disrupting the mobile market. Santiago is the primary connectivity hub, hosting the PIT Chile (Internet Exchange) and multiple data center facilities.
-
-The Chilean enterprise market benefits from the country's stable economy, strong institutional framework, and strategic Pacific coast location. Santiago's data center market is expanding rapidly, driven by AWS, Google, and Microsoft launching cloud regions in Chile. The country ranks among the highest in Latin America for fiber-to-the-home penetration.
-
-Chile's Pacific coast position makes it a landing point for submarine cables connecting to Asia-Pacific (Curie cable to the US, Mist cable to Japan). This provides enterprises with diverse international routing options beyond traditional Atlantic routes.`,
-      competitors: ['Movistar Empresas (Telefónica)', 'Claro Empresas', 'Entel Empresas', 'WOM', 'GTD', 'Telsur', 'Lumen Technologies', 'Internexa'],
-      lastMileTechnologies: ['FTTH (high penetration)', '5G (deploying)', 'Ethernet over Fiber', 'Dark Fiber (available in Santiago)', 'Leased Lines', 'Microwave PTP'],
-      averageBandwidth: '100–500 Mbps (urban enterprise), 50–200 Mbps (SME)',
-      regulatoryNotes: 'Subtel (Subsecretaría de Telecomunicaciones) regulates the market. 5G auction completed. Open access requirements for fiber infrastructure.',
-      keyInsights: [
-        'Highest FTTH penetration in Latin America',
-        'Santiago is a growing data center hub with AWS, Google, Microsoft regions',
-        'Curie and Mist submarine cables provide Asia-Pacific connectivity',
-        'Strong regulatory framework promotes competition',
-        'Stable economy supports sustained infrastructure investment',
-      ],
-    },
-  },
+  // SOUTH AMERICA
+  c('BR', 'Brazil', 'Brasil', 'south-america', '🇧🇷', { 'dark-fiber': true, '5g': true },
+    ['Claro Empresas', 'Vivo Empresas', 'Oi Empresas', 'TIM Brasil', 'Algar Telecom', 'Ascenty', 'Lumen Technologies', 'GlobeNet', 'Sparkle'],
+    ['FTTH', '5G SA/NSA', 'DOCSIS 3.1', 'Microwave', 'Satellite'],
+    { hub: 'São Paulo, Rio de Janeiro, and Fortaleza', submarine: 'the SAm-1, Monet, BRUSA, EllaLink, Malbec, and Jupiter submarine cables', special: 'Brazil is Latin America\'s largest telecommunications market. São Paulo hosts the PTT.br (PTTMetro) internet exchange — one of the largest in the Southern Hemisphere. Hundreds of regional ISPs compete with national carriers. AWS, Azure, and Google Cloud all have São Paulo regions, driving massive interconnection demand.' }),
+  c('AR', 'Argentina', 'Argentina', 'south-america', '🇦🇷', {},
+    ['Telecom Argentina', 'Telefónica (Movistar)', 'Claro Argentina', 'Metrotel', 'Silica Networks', 'Nababis'],
+    ['FTTH', 'HFC', '5G', 'Ethernet over Fiber', 'Microwave'],
+    { hub: 'Buenos Aires, Córdoba, and Rosario', submarine: 'the SAm-1, Malbec, and Bicentenario submarine cables', special: 'Argentina has a well-developed telecom market centered in Buenos Aires, which hosts the CABASE internet exchange. The market faces challenges from economic volatility but remains critical for the Southern Cone region. The Malbec cable to Brazil improves international connectivity.' }),
+  c('CL', 'Chile', 'Chile', 'south-america', '🇨🇱', { 'dark-fiber': true, '5g': true },
+    ['Movistar Empresas', 'Claro Empresas', 'Entel Empresas', 'WOM', 'GTD', 'Telsur', 'Internexa'],
+    ['FTTH', '5G', 'Ethernet over Fiber', 'Dark Fiber', 'Leased Lines'],
+    { hub: 'Santiago, Valparaíso, and Concepción', submarine: 'the Curie (to US), SAm-1, Mist (to Japan), and South Pacific cables', special: 'Chile has one of the most advanced telecom markets in Latin America with the highest FTTH penetration in the region. Santiago hosts multiple data centers and cloud regions from AWS, Google, and Microsoft. The Pacific coast position provides unique connectivity to Asia-Pacific through the Curie and Mist submarine cables.' }),
+  c('CO', 'Colombia', 'Colombia', 'south-america', '🇨🇴', { '5g': true },
+    ['Claro Empresas', 'Movistar Empresas', 'Tigo Empresas', 'WOM', 'ETB', 'Azteca Comunicaciones'],
+    ['FTTH', 'HFC', '5G', 'Ethernet over Fiber', 'Microwave'],
+    { hub: 'Bogotá, Medellín, and Cali', submarine: 'the SAm-1, Pacific Caribbean Cable System, and South America-1', special: 'Colombia has one of the most competitive telecom markets in Latin America. Bogotá hosts the NAP Colombia and serves as the Andean region\'s primary connectivity hub. Medellín is emerging as a secondary tech hub. Four mobile operators create strong competitive dynamics.' }),
+  c('PE', 'Peru', 'Perú', 'south-america', '🇵🇪', {},
+    ['Movistar Perú', 'Claro Perú', 'Bitel', 'Entel Perú'],
+    ['FTTH', '4G LTE', 'HFC', 'Microwave'],
+    { hub: 'Lima and Arequipa', submarine: 'the SAm-1, Pacific Caribbean Cable System, and South Pacific', special: 'Peru has a competitive telecom market with four mobile operators. Lima is the primary enterprise hub with growing fiber infrastructure. The country\'s Pacific coast location provides good connectivity to both North and South America.' }),
+  c('EC', 'Ecuador', 'Ecuador', 'south-america', '🇪🇨', {},
+    ['Claro Ecuador', 'Movistar Ecuador', 'CNT', 'MoviStar'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Quito and Guayaquil', submarine: 'the SAm-1 and Pacific Caribbean Cable System', special: 'Ecuador has a developing telecom market with three main operators. Quito (capital) and Guayaquil (economic hub) are the primary enterprise markets. The Pacific coast location provides good international connectivity.' }),
+  c('VE', 'Venezuela', 'Venezuela', 'south-america', '🇻🇪', { mpls: false, '5g': false },
+    ['Movistar Venezuela', 'Digitel', 'Movilnet'],
+    ['4G LTE', 'ADSL', 'Microwave', 'VSAT'],
+    { hub: 'Caracas and Maracaibo', special: 'Venezuela has a challenging telecom environment due to economic crisis and political instability. Three operators serve the market with limited infrastructure investment. Enterprise connectivity is severely constrained. International bandwidth is limited.' }),
+  c('UY', 'Uruguay', 'Uruguay', 'south-america', '🇺🇾', { '5g': true },
+    ['Antel', 'Movistar Uruguay', 'Claro Uruguay'],
+    ['FTTH', '5G', '4G LTE', 'Ethernet over Fiber'],
+    { hub: 'Montevideo', submarine: 'the Tannat, Bicentenario, and SAm-1 submarine cables', special: 'Uruguay has one of the most advanced telecom markets in South America with the highest fiber penetration in the region. Three operators compete with Antel (state-owned) as the incumbent. Montevideo is the primary hub with excellent connectivity. 5G services are available.' }),
+  c('PY', 'Paraguay', 'Paraguay', 'south-america', '🇵🇾', {},
+    ['Tigo Paraguay', 'Personal Paraguay', 'Claro Paraguay', 'Copaco'],
+    ['4G LTE', 'FTTH', 'HFC', 'Microwave'],
+    { hub: 'Asunción and Ciudad del Este', special: 'Paraguay has a developing telecom market with four operators. Asunción is the primary hub with growing fiber infrastructure. The country is landlocked, relying on connections to Brazil and Argentina for international bandwidth. Ciudad del Este is a secondary hub near the Brazilian border.' }),
+  c('BO', 'Bolivia', 'Bolivia', 'south-america', '🇧🇴', { mpls: false, '5g': false },
+    ['Entel Bolivia', 'Tigo Bolivia', 'Viva Bolivia'],
+    ['4G LTE', 'FTTH (La Paz)', 'Microwave', 'VSAT'],
+    { hub: 'La Paz and Santa Cruz', special: 'Bolivia has a developing telecom market with three operators. La Paz and Santa Cruz are the primary hubs. The country is landlocked with limited international connectivity. Enterprise options are limited but growing.' }),
+  c('GY', 'Guyana', 'Guyana', 'south-america', '🇬🇾', { mpls: false },
+    ['Digicel Guyana', 'GTT'],
+    ['4G LTE', 'FTTH', 'Microwave', 'VSAT'],
+    { hub: 'Georgetown', submarine: 'the SG-SCS and Suriname-Guyana Submarine Cable', special: 'Guyana has a small but growing telecom market driven by emerging oil and gas sector. Two operators serve the market. Georgetown is the primary hub. The economy is transforming rapidly with oil discoveries driving infrastructure investment.' }),
+  c('SR', 'Suriname', 'Surinam', 'south-america', '🇸🇷', { mpls: false },
+    ['Telesur', 'Digicel Suriname'],
+    ['4G LTE', 'ADSL', 'Microwave', 'VSAT'],
+    { hub: 'Paramaribo', submarine: 'the SG-SCS submarine cable', special: 'Suriname has a small telecom market with two operators. Paramaribo is the primary hub with limited enterprise connectivity options. The economy is small and resource-dependent.' }),
 ];
