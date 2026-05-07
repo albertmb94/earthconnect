@@ -91,6 +91,41 @@ const navGroups: NavGroup[] = [
     ]
   },
   {
+    label: 'Coverage',
+    items: [
+      {
+        label: 'Coverage Overview',
+        href: 'coverage',
+        hint: 'Global connectivity coverage by country — providers, pricing, and technologies'
+      },
+      {
+        label: 'Africa',
+        href: 'coverage?region=africa',
+        hint: 'South Africa, Nigeria, Kenya, Egypt, and 50+ African markets'
+      },
+      {
+        label: 'Americas',
+        href: 'coverage?region=americas',
+        hint: 'United States, Canada, Brazil, Mexico, and 30+ American markets'
+      },
+      {
+        label: 'Asia',
+        href: 'coverage?region=asia',
+        hint: 'Japan, Singapore, India, UAE, and 45+ Asian markets'
+      },
+      {
+        label: 'Europe',
+        href: 'coverage?region=europe',
+        hint: 'United Kingdom, Germany, France, Spain, and 40+ European markets'
+      },
+      {
+        label: 'Oceania',
+        href: 'coverage?region=oceania',
+        hint: 'Australia, New Zealand, and Pacific Island markets'
+      }
+    ]
+  },
+  {
     label: 'Company',
     items: [
       {

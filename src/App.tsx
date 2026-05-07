@@ -15,6 +15,8 @@ import { AdminCommissionDashboard } from './routes/AdminCommissionDashboard';
 import { BuyerLogin } from './routes/BuyerLogin';
 import { BuyerDashboard } from './routes/BuyerDashboard';
 import { getBuyerAuth, getAdminAuth } from './lib/auth';
+import { CoverageOverview } from './routes/CoverageOverview';
+import { CountryPage } from './routes/CountryPage';
 
 // Network Inventory Platform
 import { InventoryLayout } from './inventory/layout/InventoryLayout';
@@ -90,6 +92,10 @@ export default function App() {
               <Route path="/:lang/solutions/cybersecurity" element={<RemovedPageRedirect />} />
               <Route path="/:lang/solutions/pots-replacement" element={<RemovedPageRedirect />} />
               <Route path="/:lang/solutions/voice-collaboration" element={<RemovedPageRedirect />} />
+
+              {/* Coverage — Country Pages (must be before generic /:section/:slug) */}
+              <Route path="/:lang/coverage" element={<CoverageOverview />} />
+              <Route path="/:lang/coverage/:country" element={<CountryPage />} />
 
               <Route path="/:lang/:section/:slug" element={<MarketingPage />} />
 
